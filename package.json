@@ -1,11 +1,23 @@
 {
   "name": "mis-law-portal",
   "version": "1.0.0",
-  "description": "An MIS portal for a Legal Company",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && yarn run dev\""
   },
-  "author": "Anubhav-Pathak",
-  "license": "ISC"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Anubhav-Pathak/MIS-Legal-Firm.git"
+  },
+  "author": "Anubhav Pathak",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Anubhav-Pathak/MIS-Legal-Firm/issues"
+  },
+  "homepage": "https://github.com/Anubhav-Pathak/MIS-Legal-Firm#readme",
+  "description": "",
+  "devDependencies": {
+    "concurrently": "^8.0.1"
+  }
 }
