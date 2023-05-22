@@ -1,9 +1,10 @@
+import '../assets/CSS/globals.css'
 import React from "react";
 import Image from "next/image";
-import Navbar from "../../components/Navbar";
-import Select from "../../components/UI/Select";
-import FileUploadModal from "../../components/UI/FileUploadModal";
-import Table from "../../components/UI/Table";
+import Navbar from "../components/Navbar";
+import Table from "../components/UI/Table";
+import Select from "../components/UI/Select";
+import FileUploadModal from "../components/UI/FileUploadModal";
 
 const Dashboard = () => {
   //dummy data, ignore ts errors
@@ -14,7 +15,7 @@ const Dashboard = () => {
 
   return (
     <main className="flex flex-col min-h-screen bg-gray-200">
-      <Navbar />
+      <Navbar company={""} />
       <div className="p-8 flex flex-col gap-y-8">
         <div className="flex flex-row justify-between">
           <div className="flex flex-col justify-center items-center">

@@ -1,5 +1,5 @@
 import React from "react";
-import "./Table.css";
+import style from "../../assets/CSS/table.module.css";
 
 type TableProps = {
   columns: string[];
@@ -8,7 +8,7 @@ type TableProps = {
 
 const Table: React.FC<TableProps> = ({ columns, data, ...props }) => {
   return (
-    <div className="overflow-x-scroll custom-scrollbar">
+    <div className={`overflow-x-scroll ${style.custom_scrollbar}`}>
       <table className="table w-full">
         <thead>
           <tr>
