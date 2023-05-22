@@ -4,14 +4,7 @@ type options = {
   disabled?: boolean;
 };
 
-const Select = ({
-  options,
-  title,
-  ...props
-}: {
-  options: options[];
-  title?: string;
-}) => {
+const Select = ({options, title, ...props}: {options: options[]; title?: string;}) => {
   return (
     <select className="select bg-gray-300 w-full max-w-xs pr-10 focus:outline-none text-black text-[24px] drop-shadow-md">
       {title && 
