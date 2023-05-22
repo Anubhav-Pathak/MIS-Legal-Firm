@@ -11,20 +11,15 @@ const Table: React.FC<TableProps> = ({ columns, data, ...props }) => {
     <div className={`overflow-x-scroll ${style.custom_scrollbar}`}>
       <table className="table w-full">
         <thead>
-          <tr>
-            {columns.map((column, i) => (
-              <th
-                key={i}
-                className="bg-red-800 text-white text-3xl rounded-none"
-              >
-                {column}
-              </th>
-            ))}
-          </tr>
+          <tr>{
+            columns.map((column, i) => (
+              <th key={i} className="bg-red-800 text-white text-3xl rounded-none">{column}</th>
+            ))
+          }</tr>
         </thead>
         <tbody>
           {data.map((row, i) => (
-            <tr key={i} className="bg-white text-black text-3xl">
+            <tr key={i} className="bg-white text-black">
               {row.map((cell, j) => (
                 <td key={j} className="rounded-none">
                   {cell}

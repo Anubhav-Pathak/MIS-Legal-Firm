@@ -4,7 +4,6 @@ import Image from "next/image";
 
 const FileUploadModal = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     setSelectedFile(file || null);
