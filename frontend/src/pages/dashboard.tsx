@@ -1,12 +1,15 @@
 import '../assets/CSS/globals.css'
-import React from "react";
-import Image from "next/image";
-import Navbar from "../components/Navbar";
-import Search from "../components/Search";
+import React, {useContext} from "react";
+
+import DataContext, { DataContextProvider } from '@/contexts/DataContext';
+
+import Navbar from "@/components/Navbar";
+import ErrorModal from '@/components/ErrorModal';
+import FileUploadModal from "@/components/FileUploadModal";
+import Search from "@/components/Search";
+import Filter from '@/components/Filter';
+import Pagination from '@/components/Pagination';
 import Table from "../components/UI/Table";
-import Select from "../components/UI/Select";
-import FileUploadModal from "../components/FileUploadModal";
-import { DataContextProvider } from '@/contexts/DataContext';
 
 const metaData = () => {
   return (
@@ -22,25 +25,17 @@ const metaData = () => {
 };
 
 const Dashboard = () => {
+  const dataContext = useContext(DataContext);
   return (
     <DataContextProvider>
+      <ErrorModal />
       <FileUploadModal />
       <Navbar company={""} />
-      <main className="flex flex-col min-h-screen bg-gray-200 px-8">
-        <div className="flex flex-col">
-          <div className="text-2xl text-black font-bold mb-2">Search Case:</div>
-          <Search />
-        </div>
-        <div className="flex flex-col bg-white p-5 shadow-sm gap-4">
-          <div className="text-2xl text-black font-bold">Filter By-</div>
-          <div className="flex flex-row justify-between">
-            <Select options={[{ value: "Date" }]} title="Date -" />
-            <Select options={[{ value: "Type" }]} title="Type - " />
-            <Select options={[{ value: "foo" }]} />
-            <Select options={[{ value: "bar" }]} />
-          </div>
-        </div>
-    </main>
+      <main className="min-h-screen bg-secondary p-4 md:p-8">
+        <Search />
+        <Filter />
+        <Pagination />
+      </main>
     </DataContextProvider>
   );
 };

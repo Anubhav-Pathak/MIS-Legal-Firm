@@ -16,7 +16,7 @@ const Search = () => {
 
   return (
     <form onSubmit={submitHandler as any} className='flex'>
-      <Input ref={searchRef} input={{type:"text", placeholder:"Search...", className:"rounded-l-full focus:outline-none input w-full max-w-xs bg-white text-black"}} />
+      <Input ref={searchRef} style="md:w-96" input={{type:"text", placeholder:"Search...", className:"rounded-l-full focus:outline-none input w-full bg-white text-black"}} />
       <Button type="submit" styles="btn btn-primary rounded-r-full"><Image src="/search.svg" width="30" height="30" alt='Search' /></Button>
     </form>
   )

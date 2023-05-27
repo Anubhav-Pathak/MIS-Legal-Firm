@@ -1,22 +1,19 @@
-type options = {
-  value: string;
-  label?: string;
-  disabled?: boolean;
-};
+import React, {useContext} from "react";
+import DataContext from "@/contexts/DataContext";
 
-const Select = ({options, title, ...props}: {options: options[]; title?: string;}) => {
+const Select = ({options, label}: {options: string[], label: string}) => {
+
+  const dataContext = useContext(DataContext);
+
+  function onChangeHandler(e: React.ChangeEvent<HTMLSelectElement>) {
+    dataContext.filterHandler({column: label, value: e.target.value});
+  }
+
   return (
-    <select className="select bg-gray-300 w-full max-w-xs pr-10 focus:outline-none text-black text-[24px] drop-shadow-md">
-      {title && 
-      (
-        <option disabled defaultValue={title}>
-          {title}
-        </option>
-      )}
+    <select className="select bg-secondary w-full max-w-xs" defaultValue={label} onChange={onChangeHandler}>
+      <option value={label} disabled>Choose a {label}</option>
       {options.map((option, i) => (
-        <option value={option.value} disabled={option.disabled} key={i}>
-          {option.label || option.value}
-        </option>
+        <option value={option} key={i}>{option}</option>
       ))}
     </select>
   );

@@ -7,7 +7,7 @@ const Navbar = ({company}:{company:string}) => {
     console.log("logout");
   }
   return (
-    <nav className="navbar bg-red-800 flex flex-row justify-between top-0 z-50 mb-8">
+    <nav className="navbar bg-red-800 flex flex-row justify-between top-0 z-50">
       <h1 className="text-3xl text-white">{company}</h1>
       <div className="flex flex-row gap-4">
         <Button type="button" clickHandler={logoutHandler} styles="btn">Logout</Button>
