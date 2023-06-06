@@ -9,7 +9,7 @@ import FileUploadModal from "@/components/FileUploadModal";
 import Search from "@/components/Search";
 import Filter from '@/components/Filter';
 import Pagination from '@/components/Pagination';
-import Table from "../components/UI/Table";
+import Table from "@/components/Table";
 
 const metaData = () => {
   return (
@@ -35,6 +35,7 @@ const Dashboard = () => {
         <Search />
         <Filter />
         <Pagination />
+        { dataContext.data && <Table />}
       </main>
     </DataContextProvider>
   );

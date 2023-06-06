@@ -48,7 +48,6 @@ export const DataContextProvider = (props: any) => {
     async function fetchData() {
       try{
         const data = await postRead(page, company, limit);
-        console.log(data);
         setData(data);
       }
       catch (error: any){

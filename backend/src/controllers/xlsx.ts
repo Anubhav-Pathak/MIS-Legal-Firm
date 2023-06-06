@@ -15,19 +15,12 @@ export function postRead(req: Request, res: Response) {
         const limit: number = req.body.limit ?? 15;
         const data: any[] = XLSX.utils.sheet_to_json(worksheet);
 
-        if (Number.isNaN(page)) throw { status: 400, message: 'Page must be a number' };
-        else if (page < 1) throw { status: 400, message: 'Page must be greater than 0' };
-        else if (page > Math.ceil(data.length/limit)) throw { status: 400, message: 'Page must be less than total pages' };
-        else if (limit < 1) throw { status: 400, message: 'Limit must be greater than 0' };
+        if (page > Math.ceil(data.length/limit)) throw { status: 400, message: 'Page must be less than total pages' };
         else if (limit > data.length) throw { status: 400, message: 'Limit must be less than total data' };
 
         const results: any[] = data.slice((page-1)*limit, page*limit);
         
-        res.status(200).send({ 
-            data: results, 
-            total: data.length, 
-            totalPages: Math.ceil(data.length / limit) 
-        });
+        res.status(200).send(results);
     }
     catch (e : any) {
         res.status(e.status).send({ message: e.message });
