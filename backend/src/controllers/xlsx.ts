@@ -58,7 +58,6 @@ export function getfilterBy(req: Request, res: Response) {
             }
             return valid;
         });
-        console.log(results, data)
         res.status(200).send(results);
 
     } catch (e: any) {
