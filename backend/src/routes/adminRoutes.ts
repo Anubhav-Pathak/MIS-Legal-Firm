@@ -5,7 +5,7 @@ const router: Router = Router();
 
 router.post("/read", postRead);
 router.put("/upload", upload);
-router.get("/filter", getfilterBy);
-router.post("/filter", postSearch);
+router.get("/read/filter", getfilterBy);
+router.post("/read/filter", postSearch);
 
 export default router;

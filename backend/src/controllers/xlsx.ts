@@ -44,7 +44,7 @@ export function upload(req: Request, res: Response) {
 
 export function getfilterBy(req: Request, res: Response) {
     try {
-        const company: string = "SME";
+        const company: string = "SME ";
         const filters: any = req.query;
         const workbook: XLSX.WorkBook = XLSX.readFile(worksheetPath);
         if (!workbook) throw { status: 500, message: 'Error reading file' };
@@ -58,6 +58,7 @@ export function getfilterBy(req: Request, res: Response) {
             }
             return valid;
         });
+        console.log(results, data)
         res.status(200).send(results);
 
     } catch (e: any) {
@@ -67,7 +68,7 @@ export function getfilterBy(req: Request, res: Response) {
 
 export function postSearch(req: Request, res: Response) {
     try {
-        const company: string = "SME";
+        const company: string = "SME ";
         const search: string = req.body.search;
         const workbook: XLSX.WorkBook = XLSX.readFile(worksheetPath);
         if (!workbook) throw { status: 500, message: 'Error reading file' };
