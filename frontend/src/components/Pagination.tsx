@@ -1,13 +1,18 @@
-import React, { useRef } from 'react'
-import Input from './UI/Input'
-import Button from './UI/Button'
-import DataContext from '@/contexts/DataContext'
+import React, { useRef } from "react";
+import Input from "./UI/Input";
+import Button from "./UI/Button";
+import DataContext from "@/contexts/DataContext";
 
 const Pagination = () => {
   const dataContext = React.useContext(DataContext);
+  const remainingData = dataContext.remainingData;
+  const totalData = dataContext.data.length + remainingData;
 
   const [limit, setLimit] = React.useState(dataContext.limit);
   const [page, setPage] = React.useState(dataContext.page);
+
+  const maxPage = Math.ceil(totalData / limit);
+  const maxLimit = Math.min(totalData, 100);
 
   const limitChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLimit(+e.target.value);
@@ -46,6 +51,7 @@ const Pagination = () => {
         <Button
           clickHandler={nextPageHandler}
           styles="btn-primary rounded-none w-24"
+          disabled={remainingData <= 0}
         >
           Next
         </Button>
@@ -59,6 +65,7 @@ const Pagination = () => {
           input={{
             type: "number",
             min: 1,
+            max: maxPage,
             value: page,
             onChange: pageChangeHandler,
             className: "input input-primary w-20",
@@ -69,7 +76,7 @@ const Pagination = () => {
           input={{
             type: "number",
             min: 1,
-            max: 100,
+            max: maxLimit,
             value: limit,
             onChange: limitChangeHandler,
             className: "input input-primary w-20",
@@ -83,5 +90,4 @@ const Pagination = () => {
   );
 };
 
-
-export default Pagination
+export default Pagination;
