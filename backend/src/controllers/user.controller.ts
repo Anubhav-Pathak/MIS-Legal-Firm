@@ -7,9 +7,10 @@ import User from "../models/User";
 const privateKey = process.env.JWT_SECRET || 'secret';
 
 export async function signUp(req: Request, res: Response) {
-    const { username, password }: {
+    const { username, password, company }: {
         username: string,
-        password: string
+        password: string,
+        company: string
     } = req.body;
     let hashedPassword = await argon2.hash(password);
     try {
