@@ -6,18 +6,16 @@ import User from "../models/User";
 
 const privateKey = process.env.JWT_SECRET || 'secret';
 
-export async  function signUp(req: Request, res: Response) {
-    const { username, password, email }: {
+export async function signUp(req: Request, res: Response) {
+    const { username, password }: {
         username: string,
-        password: string,
-        email: string
+        password: string
     } = req.body;
     let hashedPassword = await argon2.hash(password);
     try {
         const user = await User.create({
             username,
-            password: hashedPassword,
-            email
+            password: hashedPassword
         });
         if (user) return res.status(201).send({ message: 'User created' });
         else return res.status(400).send({ message: 'User not created' });
@@ -27,16 +25,15 @@ export async  function signUp(req: Request, res: Response) {
 }
 
 export async function signIn(req: Request, res: Response) {
-    const { username, password, email }: {
+    const { username, password }: {
         username: string,
-        password: string,
-        email: string
+        password: string
     } = req.body;
     try {
         const user = await User.findOne({ username });
         if (user) {
             const isPasswordCorrect = await argon2.verify(user.password, password);
-            if (isPasswordCorrect){
+            if (isPasswordCorrect) {
                 const token = jwt.sign(
                     { username: user.username }, privateKey, { algorithm: 'RS256' });
                 return res.status(200).send({ message: 'User signed in', token });

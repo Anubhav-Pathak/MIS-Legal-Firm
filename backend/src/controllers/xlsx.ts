@@ -59,8 +59,8 @@ export function upload(req: Request, res: Response) {
 
 export function getfilterBy(req: Request, res: Response): void {
   try {
-    const company = "SME ";
-    const filters: Record<string, string | string[]> = req.query;
+    const company: string = "SME ";
+    const filters: any = req.query;
     const page: number = req.query.page ? +req.query.page : DEFAULT_PAGE;
     const limit: number = req.query.limit ? +req.query.limit : DEFAULT_LIMIT;
 

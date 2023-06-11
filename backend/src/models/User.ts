@@ -1,5 +1,3 @@
-// mongoose Model for user
-
 import mongoose from 'mongoose';
 
 const UserSchema = new mongoose.Schema({
@@ -15,13 +13,11 @@ const UserSchema = new mongoose.Schema({
         required: true,
         minlength: 8
     },
-    email: {
-        type: String,
-        required: false,
-        unique: true,
-        minlength: 5,
-        maxlength: 40,
-    },
+    isAdmin: {
+        type: Boolean,
+        required: true,
+        default: false
+    }
 });
 
 const User = mongoose.model('User', UserSchema);
