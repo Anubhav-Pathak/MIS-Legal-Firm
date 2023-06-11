@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import router from './routes/adminRoutes';
+import userRouter from './routes/userRoutes';
 import fileUpload from 'express-fileupload';
 import path from 'path';
 
@@ -28,6 +29,7 @@ app.get('/', (req: any, res: any) => {
 });
 
 app.use('/api', router);
+app.use('/api/user', userRouter);
 
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
     console.log(error);
