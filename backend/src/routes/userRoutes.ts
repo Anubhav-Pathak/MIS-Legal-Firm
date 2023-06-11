@@ -4,7 +4,7 @@ import { verifyAdminHeader } from "../middleware/headerVerification";
 
 const userRouter: Router = Router();
 
-userRouter.post("/add-user", verifyAdminHeader, signUp);
+userRouter.post("/add", signUp);
 userRouter.post("/sign-in", signIn)
 
 export default userRouter;

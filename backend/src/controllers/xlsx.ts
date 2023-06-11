@@ -28,7 +28,7 @@ export async function postRead(req: Request, res: Response): Promise<void> {
 		if (!worksheet) throw { status: 404, message: "Company not found" };
 
 		const page = req.query.page ? +req.query.page : DEFAULT_PAGE;
-		const limit = req.body.limit ?? DEFAULT_LIMIT;
+		let limit = req.query.limit ? +req.query.limit : DEFAULT_LIMIT;
 
 		const data: Record<string, number | string>[] =
 			XLSX.utils.sheet_to_json(worksheet);
@@ -36,7 +36,7 @@ export async function postRead(req: Request, res: Response): Promise<void> {
 		if (page > Math.ceil(data.length / limit))
 			throw { status: 400, message: "Page must be less than total pages" };
 		else if (limit > data.length)
-			throw { status: 400, message: "Limit must be less than total data" };
+			limit = data.length;
 
 		const startIndex = (page - 1) * limit;
 		const endIndex = page * limit;
