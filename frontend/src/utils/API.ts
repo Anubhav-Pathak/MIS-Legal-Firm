@@ -21,7 +21,11 @@ export async function postRead(
   return data;
 }
 
-export async function postSearch(search: string) {
+export async function postSearch(
+  search: string,
+  pageNumber: Number,
+  limit: Number
+) {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/read/filter`,
     {
@@ -31,6 +35,8 @@ export async function postSearch(search: string) {
       },
       body: JSON.stringify({
         search: search,
+        page: pageNumber,
+        limit: limit,
       }),
     }
   );
@@ -39,8 +45,17 @@ export async function postSearch(search: string) {
   return data;
 }
 
-export async function getFilter(columns = {}) {
-  const params = new URLSearchParams(columns).toString().toLowerCase();
+export async function getFilter(
+  columns = {},
+  pageNumber: Number,
+  limit: Number
+) {
+  const params = new URLSearchParams({
+    ...columns,
+    page: pageNumber.toString(),
+    limit: limit.toString(),
+  }).toString();
+
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/read/filter?${params}`,
     {
