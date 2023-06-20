@@ -1,53 +1,60 @@
-import express, { NextFunction, Request, Response } from 'express';
-import bodyParser from 'body-parser';
-import dotenv from 'dotenv';
-import cors from 'cors';
-import mongoose from 'mongoose';
-import router from './routes/adminRoutes';
-import userRouter from './routes/userRoutes';
-import fileUpload from 'express-fileupload';
-import path from 'path';
+import express, { NextFunction, Request, Response } from "express";
+import bodyParser from "body-parser";
+import dotenv from "dotenv";
+import cors from "cors";
+import mongoose from "mongoose";
+
+import router from "./routes/adminRoutes";
+import userRouter from "./routes/userRoutes";
+import pdfRouter from "./routes/pdfRoutes";
+import superAdminRouter from "./routes/superAdminRoutes";
+
+import path from "path";
+import fileUpload from "express-fileupload";
 
 const app = express();
 dotenv.config();
 
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/lawfirm";
+const MONGODB_URI =
+  process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/lawfirm";
 const PORT = process.env.PORT || 5000;
 
 dotenv.config();
 app.use(cors());
 app.set("view engine", "pug");
 app.set("views", "src/views");
-app.use(express.json())
-app.use(fileUpload())
-app.use(bodyParser.urlencoded({extended: false})); 
-app.use(express.static(path.join(path.resolve(),"data")));
-app.use(express.static(path.join(path.resolve(),"public")));
+app.use(express.json());
+app.use(fileUpload());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.static(path.join(path.resolve(), "data")));
+app.use(express.static(path.join(path.resolve(), "public")));
 
-app.get('/', (req: any, res: any) => {
-    res.render('index');
+app.get("/", (req: any, res: any) => {
+  res.render("index");
 });
 
-app.use('/api', router);
-app.use('/api/user', userRouter);
+app.use("/api", router);
+app.use("/api/user", userRouter);
+app.use("/api/pdf", pdfRouter);
+app.use("/api/admin", superAdminRouter);
 
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
-    console.log(error);
-    const status = error.statusCode || 500;
-    const message = error.message;
-    const data = error.data;
-    res.status(status).json({message: message, data: data});
+  console.log(error);
+  const status = error.statusCode || 500;
+  const message = error.message;
+  const data = error.data;
+  res.status(status).json({ message: message, data: data });
 });
 
-mongoose.set('strictQuery', false);
-mongoose.connect(MONGODB_URI)
-.then(() => {
+mongoose.set("strictQuery", false);
+mongoose
+  .connect(MONGODB_URI)
+  .then(() => {
     console.log("Connected to Database");
-})
-.then(() => {
+  })
+  .then(() => {
     app.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}`);
-    });    
-})
-.catch(e => console.log(e));
-
+      console.log(`Server is running on port ${PORT}`);
+    });
+  })
+  .catch((e) => console.log(e));

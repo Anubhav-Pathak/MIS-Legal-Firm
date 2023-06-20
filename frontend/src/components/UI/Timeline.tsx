@@ -42,27 +42,31 @@ const RightCard = (props: any) => {
 };
 
 const Timeline = (props: any) => {
-  return props.data.map((item: any, index: number) => {
-    if (index % 2 === 0) {
-      return (
-        <LeftCard
-          key={index}
-          index={index + 1}
-          title={item[0]}
-          description={item[1]}
-        />
-      );
-    } else {
-      return (
-        <RightCard
-          key={index}
-          index={index + 1}
-          title={item[0]}
-          description={item[1]}
-        />
-      );
-    }
-  });
+  return props.data
+    .sort((a: any, b: any) => {
+      return a[1] < b[1];
+    })
+    .map((item: any, index: number) => {
+      if (index % 2 === 0) {
+        return (
+          <LeftCard
+            key={index}
+            index={index + 1}
+            title={item[0]}
+            description={item[1]}
+          />
+        );
+      } else {
+        return (
+          <RightCard
+            key={index}
+            index={index + 1}
+            title={item[0]}
+            description={item[1]}
+          />
+        );
+      }
+    });
 };
 
 export default Timeline;

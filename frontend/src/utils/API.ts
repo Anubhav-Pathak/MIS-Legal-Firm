@@ -1,7 +1,16 @@
+interface ClientData {
+  clientName: string;
+  username: string;
+  password: string;
+  clientFile: File | null;
+  templateFiles: File[];
+}
+
 export async function postRead(
   pageNumber: Number,
   company: string,
-  limit: Number
+  limit: Number,
+  tab?: string
 ) {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/read?page=${pageNumber}`,
@@ -13,6 +22,7 @@ export async function postRead(
       body: JSON.stringify({
         company: company,
         limit: limit,
+        tab: tab,
       }),
     }
   );
@@ -24,7 +34,9 @@ export async function postRead(
 export async function postSearch(
   search: string,
   pageNumber: Number,
-  limit: Number
+  limit: Number,
+  company: string,
+  tab?: string
 ) {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/read/filter`,
@@ -37,6 +49,8 @@ export async function postSearch(
         search: search,
         page: pageNumber,
         limit: limit,
+        company: company,
+        tab: tab,
       }),
     }
   );
@@ -48,12 +62,16 @@ export async function postSearch(
 export async function getFilter(
   columns = {},
   pageNumber: Number,
-  limit: Number
+  limit: Number,
+  company: string,
+  tab?: string
 ) {
   const params = new URLSearchParams({
     ...columns,
     page: pageNumber.toString(),
     limit: limit.toString(),
+    company: company,
+    tab: tab ? tab : "",
   }).toString();
 
   const response = await fetch(
@@ -66,6 +84,127 @@ export async function getFilter(
     }
   );
   if (!response.ok) throw Error("Something Went Wrong");
+  const data = await response.json();
+  return data;
+}
+
+export async function getPDFFileNames() {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/pdf/list`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  if (!response.ok) throw Error("Something Went Wrong");
+  const data = await response.json();
+  return data;
+}
+
+export async function createClient(clientData: ClientData) {
+  const formData = new FormData();
+
+  Object.entries(clientData).forEach(([key, value]) => {
+    if (key === "clientFile") {
+      if (!value) return;
+      const blob = new Blob([value.buffer]);
+      formData.append(`clientFile`, blob, `clientFile`);
+    } else if (key === "templateFiles") {
+      if (!Array.isArray(value)) return;
+      value.forEach((file, index) => {
+        if (file) {
+          const blob = new Blob([file.buffer]);
+          formData.append(`templateFiles`, blob, `templateFile_${index}`);
+        }
+      });
+    } else if (value !== null) {
+      formData.append(key, typeof value === "string" ? value : String(value));
+    }
+  });
+
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/admin/create`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error: any) {
+    throw new Error("Error creating client: " + error?.message);
+  }
+}
+
+export async function getTemplates(company: string) {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/pdf/templates?company=${company}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  if (!response.ok) throw Error("Something Went Wrong");
+  const data = await response.json();
+  return data;
+}
+
+export async function getCompanies() {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/companies`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  if (!response.ok) throw new Error("Something went wrong");
+  const data = await response.json();
+  return data;
+}
+
+export async function deleteClient(clientId: string) {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/admin/${clientId}`,
+    {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  if (!response.ok) throw new Error("Failed to delete client");
+  const data = await response.json();
+  return data;
+}
+
+export async function editClient(
+  clientId: string,
+  newClientCredentials: Record<string, string>
+) {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/admin/${clientId}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newClientCredentials),
+    }
+  );
+  if (!response.ok) throw new Error("Failed to edit client");
   const data = await response.json();
   return data;
 }

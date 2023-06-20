@@ -1,6 +1,7 @@
 import XLSX from "xlsx";
 import { Response, Request } from "express";
 import path from "path";
+import fs from "fs";
 
 const worksheetPath = path.join("src", "data", "xlsx", "data.xlsx");
 const DEFAULT_LIMIT = 15;
@@ -8,11 +9,15 @@ const DEFAULT_PAGE = 1;
 
 export function postRead(req: Request, res: Response): void {
   try {
-    const company = req.body.company;
+    const { company, tab } = req.body;
+
+    const worksheetPath = path.join("src", "data", "xlsx", company, company + ".xlsx");
+
     const workbook: XLSX.WorkBook = XLSX.readFile(worksheetPath);
     if (!workbook) throw { status: 500, message: "Error reading file" };
 
-    const worksheet: XLSX.WorkSheet = workbook.Sheets[company];
+    const worksheet: XLSX.WorkSheet =
+      workbook.Sheets[tab || workbook.SheetNames[0]];
     if (!worksheet) throw { status: 404, message: "Company not found" };
 
     const page = req.query.page ? +req.query.page : DEFAULT_PAGE;
@@ -36,7 +41,9 @@ export function postRead(req: Request, res: Response): void {
     const remainingData = Math.max(data.length - endIndex, 0);
     const totalPages = Math.ceil(data.length / limit);
 
-    res.status(200).send({ results, remainingData, totalPages });
+    res
+      .status(200)
+      .send({ results, remainingData, totalPages, tabs: workbook.SheetNames });
   } catch (e: any) {
     res.status(500).send({ message: e.message });
   }
@@ -59,16 +66,20 @@ export function upload(req: Request, res: Response) {
 
 export function getfilterBy(req: Request, res: Response): void {
   try {
-    const company = "SME ";
     const filters: Record<string, string | string[]> = req.query;
     const page: number = req.query.page ? +req.query.page : DEFAULT_PAGE;
     const limit: number = req.query.limit ? +req.query.limit : DEFAULT_LIMIT;
+    const company: string = req.query.company;
+    const tab: string = req.query.tab;
+
+    const worksheetPath = path.join("src", "data", "xlsx", company, company + ".xlsx");
 
     const workbook: XLSX.WorkBook = XLSX.readFile(worksheetPath);
     if (!workbook) throw { status: 500, message: "Error reading file" };
 
-    const worksheet: XLSX.WorkSheet = workbook.Sheets[company];
-    if (!worksheet) throw { status: 404, message: "Company not found" };
+    const worksheet: XLSX.WorkSheet =
+      workbook.Sheets[tab || workbook.SheetNames[0]];
+    if (!worksheet) throw { status: 404, message: "Company or tab not found" };
 
     const data: Record<string, number | string>[] =
       XLSX.utils.sheet_to_json(worksheet);
@@ -101,16 +112,18 @@ export function getfilterBy(req: Request, res: Response): void {
 
 export function postSearch(req: Request, res: Response): void {
   try {
-    const company = "SME ";
-    const search = req.body.search;
+    const { company, tab, search } = req.body;
     const page: number = req.body.page ? +req.body.page : DEFAULT_PAGE;
     const limit: number = req.body.limit ? +req.body.limit : DEFAULT_LIMIT;
+
+    const worksheetPath = path.join("src", "data", "xlsx", company, company + ".xlsx");
 
     const workbook: XLSX.WorkBook = XLSX.readFile(worksheetPath);
     if (!workbook) throw { status: 500, message: "Error reading file" };
 
-    const worksheet: XLSX.WorkSheet = workbook.Sheets[company];
-    if (!worksheet) throw { status: 404, message: "Company not found" };
+    const worksheet: XLSX.WorkSheet =
+      workbook.Sheets[tab || workbook.SheetNames[0]];
+    if (!worksheet) throw { status: 404, message: "Company or tab not found" };
 
     const data: Record<string, number | string>[] =
       XLSX.utils.sheet_to_json(worksheet);
@@ -141,3 +154,77 @@ export function postSearch(req: Request, res: Response): void {
     res.status(500).send({ message: e.message });
   }
 }
+
+export const getCompanies = (req: Request, res: Response) => {
+  const xlsxDirectoryPath = path.join("src", "data", "xlsx");
+  const templatesDirectoryPath = path.join("src", "data", "templates");
+
+  try {
+    const xlsxDirectories = fs.readdirSync(xlsxDirectoryPath);
+
+    const templatesDirectories = fs.readdirSync(templatesDirectoryPath);
+
+    const companies = [];
+
+    for (const xlsxDirectory of xlsxDirectories) {
+      const xlsxDirectoryFullPath = path.join(xlsxDirectoryPath, xlsxDirectory);
+      const files = fs.readdirSync(xlsxDirectoryFullPath);
+
+      const xlsxFiles = files.filter((file) => path.extname(file) === ".xlsx");
+
+      for (const file of xlsxFiles) {
+        const filePath = path.join(xlsxDirectoryFullPath, file);
+        const stats = fs.statSync(filePath);
+        const sizeInBytes = stats.size;
+        const createdAt = stats.birthtime;
+
+        const workbook: XLSX.WorkBook = XLSX.readFile(filePath);
+        const tabs = workbook.SheetNames;
+
+        companies.push({
+          name: file,
+          sizeInBytes,
+          createdAt,
+          tabs,
+          templates: getTemplates(templatesDirectoryPath, templatesDirectories),
+        });
+      }
+    }
+
+    res.status(200).send({ companies });
+  } catch (error) {
+    console.error("Error reading directory:", error);
+    res.status(500).send({ message: "Error reading directory" });
+  }
+};
+
+const getTemplates = (directoryPath: string, directories: string[]) => {
+  try {
+    const templates = [];
+
+    for (const templateDirectory of directories) {
+      const templateDirectoryPath = path.join(directoryPath, templateDirectory);
+      const files = fs.readdirSync(templateDirectoryPath);
+
+      const pdfFiles = files.filter((file) => path.extname(file) === ".pdf");
+
+      for (const file of pdfFiles) {
+        const filePath = path.join(templateDirectoryPath, file);
+        const stats = fs.statSync(filePath);
+        const sizeInBytes = stats.size;
+        const createdAt = stats.birthtime;
+
+        templates.push({
+          name: file,
+          sizeInBytes,
+          createdAt,
+        });
+      }
+    }
+
+    return templates;
+  } catch (error) {
+    console.error("Error reading directory:", error);
+    return [];
+  }
+};

@@ -6,7 +6,7 @@ import User from "../models/User";
 
 const privateKey = process.env.JWT_SECRET || 'secret';
 
-export async  function signUp(req: Request, res: Response) {
+export async function signUp(req: Request, res: Response) {
     const { username, password, email }: {
         username: string,
         password: string,

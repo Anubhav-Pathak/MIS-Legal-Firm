@@ -1,9 +1,8 @@
 @tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 * {
   scrollbar-width: thick;
   scrollbar-color: var(--color-primary) var(--color-secondary);
 }
-
-@tailwind components;
-@tailwind utilities;

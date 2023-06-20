@@ -1,3 +1,4 @@
+"use client"
 import React from "react";
 import { useEffect, useState } from "react";
 
@@ -9,8 +10,8 @@ const Toast = (props: any) => {
   };
 
   useEffect(() => {
-    let timeout;
-    let interval;
+    let timeout: NodeJS.Timeout;
+    let interval: NodeJS.Timeout;
 
     if (props.show) {
       let progress = 100;
@@ -39,6 +40,9 @@ const Toast = (props: any) => {
           <div
             className={`alert ${props.styles} shadow-lg flex flex-col cursor-pointer`}
           >
+            {props.message && (
+              <div className="font-bold uppercase">{props.message}</div>
+            )}
             {props.children}
             <progress
               className="progress progress-white w-56"

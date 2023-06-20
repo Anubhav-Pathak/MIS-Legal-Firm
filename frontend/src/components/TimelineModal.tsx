@@ -1,3 +1,4 @@
+"use client"
 import React from "react";
 import Modal from "./UI/Modal";
 import Timeline from "./UI/Timeline";
