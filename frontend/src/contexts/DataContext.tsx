@@ -2,44 +2,73 @@ import React, { useEffect, useState, useRef } from "react";
 import { getFilter, postRead, postSearch } from "@/utils/API";
 
 type TimelineEntry = [string, string][];
+type Data = {
+  results: { [key: string]: string | null }[];
+  remainingData: number;
+  tabs: string[];
+};
 
-const DataContext = React.createContext({
-  filter: {},
-  data: [] as { [key: string]: string | null }[],
-  page: 1,
-  setPage: (page: number) => {},
-  limit: 15,
-  setLimit: (limit: number) => {},
-  error: "",
-  searchHandler: (search: string) => {},
-  filterHandler: ({
-    column: column,
-    value: value,
-    reset: reset,
-  }: {
+interface DataContextValue {
+  filter: {};
+  data: Data;
+  page: number;
+  setPage: (page: number) => void;
+  limit: number;
+  setLimit: (limit: number) => void;
+  error: string;
+  searchHandler: (search: string) => void;
+  filterHandler: (params: {
     column: string;
     value: string;
     reset?: boolean;
-  }) => {},
-  setError: (message: string) => {},
+  }) => void;
+  setError: (message: string) => void;
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
+  timeline: TimelineEntry;
+  setTimeline: (timeline: TimelineEntry) => void;
+  setFilter: (filter: {}) => void;
+  setData: (data: Data) => void;
+  remainingData: number;
+  setRemainingData: (remainingData: number) => void;
+  company: {
+    name: string;
+    tab: string;
+  };
+  setCompany: (company: { name: string; tab: string }) => void;
+}
+
+const DataContext = React.createContext<DataContextValue>({
+  filter: {},
+  data: { results: [], remainingData: 0, tabs: [] },
+  page: 1,
+  setPage: () => {},
+  limit: 15,
+  setLimit: () => {},
+  error: "",
+  searchHandler: () => {},
+  filterHandler: () => {},
+  setError: () => {},
   loading: true,
-  setLoading: (loading: boolean) => {},
-  timeline: [] as unknown as TimelineEntry,
-  setTimeline: (timeline: TimelineEntry) => {},
-  setFilter: (filter: {}) => {},
-  setData: (data: { [key: string]: string | null }[]) => {},
+  setLoading: () => {},
+  timeline: [],
+  setTimeline: () => {},
+  setFilter: () => {},
+  setData: () => {},
   remainingData: 0,
-  setRemainingData: (remainingData: number) => {},
+  setRemainingData: () => {},
+  company: { name: "", tab: "" },
+  setCompany: () => {},
 });
 
 const transformData = (
-  data: { [key: string]: null }[]
+  data: { [key: string]: string | null }[]
 ): { [key: string]: string | null }[] => {
   const uniqueKeys: string[] = Array.from(
     new Set(data.flatMap((obj: {}) => Object.keys(obj)))
   );
 
-  const updatedData = data.map((obj: { [x: string]: null }) => {
+  const updatedData = data.map((obj: { [x: string]: string | null }) => {
     const updatedObj: { [key: string]: string | null } = {};
     uniqueKeys.forEach((key) => {
       updatedObj[key] = obj[key] || null;
@@ -51,25 +80,41 @@ const transformData = (
 };
 
 export const DataContextProvider = (props: any) => {
-  const [data, setData] = useState<{ [key: string]: string | null }[]>([]);
+  const [data, setData] = useState<Data>({
+    results: [],
+    remainingData: 0,
+    tabs: [],
+  });
   const [filter, setFilter] = useState({});
   const [error, setError] = useState("");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(2);
-  const [company, setCompany] = useState("SME ");
   const [loading, setLoading] = useState(true);
   const [timeline, setTimeline] = useState<TimelineEntry>([]);
-  const [remainingData, setRemainingData] = useState(0);
+
+  const [company, setCompany] = useState<{ name: string; tab: string }>({
+    name: props.clientName,
+    tab: "LRN MIS Sheet",
+  });
 
   const isMountedRef = useRef(false);
 
   async function searchHandler(search: string) {
     try {
       setLoading(true);
-      const { results, remainingData } = await postSearch(search, page, limit);
+      const { results, remainingData } = await postSearch(
+        search,
+        page,
+        limit,
+        company.name,
+        company.tab
+      );
       if (!results) throw Error("No data found !");
-      setData(transformData(results));
-      setRemainingData(remainingData);
+      setData({
+        results: transformData(results),
+        remainingData,
+        tabs: [],
+      });
       setLoading(false);
     } catch (error: any) {
       setError(error.message);
@@ -102,15 +147,25 @@ export const DataContextProvider = (props: any) => {
     }
   }
 
+  /* broken, keeps firing on initial render
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const { results, remainingData } = await getFilter(filter, page, limit);
+        const { results, remainingData, tabs } = await getFilter(
+          filter,
+          page,
+          limit,
+          company.name,
+          company.tab
+        );
         if (!results) throw Error("No data found !");
         if (isMountedRef.current) {
-          setData(transformData(results));
-          setRemainingData(remainingData);
+          setData({
+            results: transformData(results),
+            remainingData,
+            tabs,
+          });
           setLoading(false);
         }
       } catch (error: any) {
@@ -128,45 +183,63 @@ export const DataContextProvider = (props: any) => {
       isMountedRef.current = true;
     };
   }, [filter]);
+  */
 
   useEffect(() => {
     async function fetchData() {
       try {
         setLoading(true);
-        const { results, remainingData } = await postRead(page, company, limit);
+        const { results, remainingData, tabs } = await postRead(
+          page,
+          company.name,
+          limit,
+          company.tab
+        );
         if (!results) throw Error("No data found !");
-
-        setData(transformData(results));
-        setRemainingData(remainingData);
+        setData({
+          results: transformData(results),
+          remainingData,
+          tabs,
+        });
         setLoading(false);
       } catch (error: any) {
         setError(error.message);
       }
     }
     fetchData();
-  }, [page, company, limit]);
+  }, [page, company.name, limit, company.tab]);
 
   return (
     <DataContext.Provider
       value={{
-        filter: filter,
-        data: data,
-        searchHandler: searchHandler,
-        filterHandler: filterHandler,
-        page: page,
-        setPage: setPage,
-        limit: limit,
-        setLimit: setLimit,
-        error: error,
-        setError: setError,
-        loading: loading,
-        setLoading: setLoading,
-        timeline: timeline,
-        setTimeline: setTimeline,
-        setFilter: (filter: {}) => {},
-        setData: setData,
-        remainingData: remainingData,
-        setRemainingData: setRemainingData,
+        filter,
+        data,
+        searchHandler,
+        filterHandler,
+        page,
+        setPage,
+        limit,
+        setLimit,
+        error,
+        setError,
+        loading,
+        setLoading,
+        timeline,
+        setTimeline,
+        setFilter,
+        setData: (data: Data) =>
+          setData((prevState) => ({
+            ...prevState,
+            results: transformData(data.results),
+          })),
+        remainingData: data.remainingData,
+        setRemainingData: (remainingData: number) =>
+          setData((prevState) => ({
+            ...prevState,
+            remainingData,
+          })),
+        company,
+        setCompany,
       }}
     >
       {props.children}

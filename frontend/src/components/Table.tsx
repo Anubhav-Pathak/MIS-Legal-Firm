@@ -1,7 +1,18 @@
+"use client";
 import DataContext from "@/contexts/DataContext";
+import { useEffect, useMemo, useState, useContext } from "react";
 import Button from "./UI/Button";
-import React, { useState, useMemo } from "react";
 import Image from "next/image";
+import TableError from "./UI/TableError";
+import Loading from "./UI/Loading";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import {
+  addRow,
+  removeRow,
+  toggleRowSelection,
+  clearRowSelection,
+} from "@/redux/features/rowSlice";
+import Link from "next/link";
 
 interface IHeaders {
   columns: string[];
@@ -15,7 +26,10 @@ const Header = ({ columns, onSearch }: IHeaders) => {
     <>
       <tr className="text-neutral">
         {columns.map((column: string) => (
-          <th key={column} className="bg-primary rounded-none text-center font-bold text-xl">
+          <th
+            key={column}
+            className="bg-primary rounded-none text-center font-bold text-xl"
+          >
             {column}
           </th>
         ))}
@@ -36,25 +50,85 @@ const Header = ({ columns, onSearch }: IHeaders) => {
   );
 };
 
+const TableRow = ({
+  row,
+  rowIndex,
+  lastIndex,
+  onTimeline,
+  isSelected,
+  toggleRow,
+  showCheckboxes,
+}: any) => {
+  const renderColumn = (column: any, index: number) => {
+    if (index !== 0) {
+      return (
+        <td key={index} className="whitespace-nowrap">
+          {column}
+        </td>
+      );
+    } else {
+      return (
+        <td key={index}>
+          {showCheckboxes ? (
+            <input
+              type="checkbox"
+              checked={isSelected}
+              className="checkbox"
+              onChange={() => toggleRow(row)}
+            />
+          ) : (
+            <div
+              className={`dropdown dropdown-hover dropdown-right ${
+                lastIndex === rowIndex ? "dropdown-end" : ""
+              }`}
+            >
+              <button
+                className="btn btn-link"
+                tabIndex={0}
+                onClick={() => onTimeline(row)}
+              >
+                {column}
+              </button>
+              <ul className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 z-50">
+                <li onClick={() => onTimeline(row)}>
+                  <a>View Timeline</a>
+                </li>
+              </ul>
+            </div>
+          )}
+        </td>
+      );
+    }
+  };
+
+  return <tr>{Object.values(row).map(renderColumn)}</tr>;
+};
+
 const Table = () => {
-  const dataContext = React.useContext(DataContext);
-  const columns = dataContext.data[0] ? Object.keys(dataContext.data[0]) : [];
+  const dataContext = useContext(DataContext);
+  const { results, tabs } = dataContext.data;
+  const company = dataContext.company;
+  const columns = results[0] ? Object.keys(results[0]) : [];
   const [searchTerms, setSearchTerms] = useState<Record<string, string>>({});
+  const [generatingPDFs, setGeneratingPDFs] = useState(false);
+  const dispatch = useAppDispatch();
+  const selectedRows = useAppSelector((state) => state.rowReducer.selectedRows);
+  console.log({ selectedRows });
 
   const handleSearch = (column: string, value: string) => {
     if (value === "") {
       const { [column]: _, ...rest } = searchTerms;
       setSearchTerms(rest);
-      return;
+    } else {
+      setSearchTerms((prevSearchTerms) => ({
+        ...prevSearchTerms,
+        [column]: value,
+      }));
     }
-    setSearchTerms((prevSearchTerms) => ({
-      ...prevSearchTerms,
-      [column]: value,
-    }));
   };
 
   const filterData = useMemo(() => {
-    return dataContext.data.filter((row) => {
+    return results.filter((row) => {
       if (Object.keys(searchTerms).length === 0) return true;
       for (const column in searchTerms) {
         const searchTerm = searchTerms[column];
@@ -67,74 +141,90 @@ const Table = () => {
       }
       return false;
     });
-  }, [dataContext.data, searchTerms]);
+  }, [results, searchTerms]);
 
-  const TimelineHandler = (row: any) => {
-    const dateRow: TimelineEntry = (
-      Object.entries(row) as Array<[string, string]>
-    ).filter((i) => {
-      return String(i[1]).match(/^\d{2}\.\d{2}\.\d{4}$/);
-    });
-    dataContext.setTimeline(dateRow);
+  const handleTimeline = (row: any) => {
+    console.log({ row });
+    const dateRow: TimelineEntry = Object.entries(row).filter((i) =>
+      String(i[1]).match(/^\d{2}\.\d{2}\.\d{4}$/)
+    ) as TimelineEntry;
+    dataContext.setTimeline(dateRow || []);
+  };
+
+  useEffect(() => {
+    if (dataContext.loading) {
+      setSearchTerms({});
+    }
+  }, [dataContext.loading]);
+
+  const handleTabChange = (tab: string) => {
+    dataContext.setCompany((prevState: { name: string; tab: string }) => ({
+      ...prevState,
+      tab: tab,
+    }));
+  };
+
+  const toggleRow = (row: number) => {
+    dispatch(toggleRowSelection(row));
+    console.log({ selectedRows });
   };
 
   if (dataContext.loading) {
-    return (
-      <div className="alert flex flex-row justify-center animate-pulse">
-        <div className="rounded-full border-8 border-t-8 border-gray-200 h-10 w-10 bg-primary"></div>
-        <span className="font-bold text-xl uppercase">Loading...</span>
-      </div>
-    );
+    return <Loading />;
   }
 
-  if (!dataContext.data.length) {
-    return (
-      <div className="alert bg-primary flex flex-row justify-center font-bold text-xl rounded-tl-none">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          className="stroke-info shrink-0 w-6 h-6"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          ></path>
-        </svg>
-        <span className="uppercase text-white">No data found!</span>
-      </div>
-    );
+  if (!results.length) {
+    return <TableError error="No data found" />;
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="table bg-white w-full text-center">
-        <thead>
-          <Header columns={columns} onSearch={handleSearch} />
-        </thead>
-        <tbody>
-          {filterData.map((row: {}, index: number) => (
-            <tr key={index}>
-              {Object.values(row).map((column: any, index: number) =>
-                index !== 0 ? (
-                  <td key={index}>{column}</td>
-                ) : (
-                  <th
-                    key={index}
-                    className="tooltip tooltip-right tooltip-primary cursor-pointer hover:bg-primary hover:text-white duration-200 rounded-none"
-                    data-tip="click to view timeline"
-                    onClick={() => TimelineHandler(row)}
-                  >
-                    {column}
-                  </th>
-                )
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div>
+      <div className="tabs tabs-boxed">
+        {tabs.map((tab: string, index: number) => (
+          <a
+            key={index}
+            className={`tab ${tab === company.tab ? "tab-active" : ""}`}
+            onClick={() => handleTabChange(tab)}
+          >
+            {tab}
+          </a>
+        ))}
+      </div>
+      <div className="overflow-x-auto">
+        <table className="table bg-white w-full text-center align-middle items-center">
+          <thead>
+            <Header columns={columns} onSearch={handleSearch} />
+          </thead>
+          <tbody>
+            {filterData.map((row: any, index: number, arr: any[]) => (
+              <TableRow
+                key={index}
+                row={row}
+                rowIndex={index}
+                lastIndex={arr.length - 1}
+                onTimeline={handleTimeline}
+                isSelected={selectedRows.includes(row)}
+                toggleRow={toggleRow}
+                showCheckboxes={generatingPDFs}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {generatingPDFs && (
+        <div className="mt-4">
+          <Link href={`/dashboard/${company.name}/pdf`}>
+            <Button>Submit</Button>
+          </Link>
+        </div>
+      )}
+      {!generatingPDFs && (
+        <div className="mt-4">
+          <Button clickHandler={() => setGeneratingPDFs(true)}>
+            Generate PDFs
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

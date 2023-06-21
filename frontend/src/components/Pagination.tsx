@@ -1,3 +1,4 @@
+"use client"
 import React, { useRef } from "react";
 import Input from "./UI/Input";
 import Button from "./UI/Button";
@@ -6,7 +7,7 @@ import DataContext from "@/contexts/DataContext";
 const Pagination = () => {
   const dataContext = React.useContext(DataContext);
   const remainingData = dataContext.remainingData;
-  const totalData = dataContext.data.length + remainingData;
+  const totalData = dataContext.data.results.length + remainingData;
 
   const [limit, setLimit] = React.useState(dataContext.limit);
   const [page, setPage] = React.useState(dataContext.page);

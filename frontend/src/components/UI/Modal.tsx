@@ -1,20 +1,11 @@
 import React from "react";
 
-const Modal = (props: any) => {
+const Modal = (props) => {
   return (
     <>
-      <input
-        type="checkbox"
-        id="my-modal-4"
-        className="modal-toggle"
-        checked={props.show}
-        onChange={props.onCloseHandler}
-      />
-      <label htmlFor="my-modal-4" className="modal cursor-pointer">
-        <label className="modal-box relative" htmlFor="">
-          {props.children}
-        </label>
-      </label>
+      <dialog id={props.id} className="modal" show={true}>
+        <div className="modal-box">{props.children}</div>
+      </dialog>
     </>
   );
 };

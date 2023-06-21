@@ -1,3 +1,4 @@
+"use client"
 import React, { useContext } from "react";
 import Select from "./UI/Select";
 import Button from "./UI/Button";

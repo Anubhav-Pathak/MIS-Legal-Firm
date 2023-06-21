@@ -1,3 +1,4 @@
+"use client"
 import React, { useContext, useState } from "react";
 import Image from "next/image";
 import Input from "./UI/Input";
