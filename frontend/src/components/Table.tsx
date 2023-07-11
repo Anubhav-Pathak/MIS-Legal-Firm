@@ -11,7 +11,7 @@ import {
   removeRow,
   toggleRowSelection,
   clearRowSelection,
-} from "@/redux/features/rowSlice";
+} from "@/redux/slices/rowSlice";
 import Link from "next/link";
 
 interface IHeaders {

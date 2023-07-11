@@ -1,9 +1,13 @@
 "use client";
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import Image from "next/image";
 
 export default function Home() {
-  // all of this is dummy code until we get the backend up and running
+
+  const dispatch = useDispatch();
+  const { user } = useSelector((state: any) => state.user);
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);

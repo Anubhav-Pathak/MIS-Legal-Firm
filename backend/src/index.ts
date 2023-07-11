@@ -3,20 +3,18 @@ import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import cors from "cors";
 import mongoose from "mongoose";
-
-import router from "./routes/adminRoutes";
-import userRouter from "./routes/userRoutes";
-import pdfRouter from "./routes/pdfRoutes";
-import superAdminRouter from "./routes/superAdminRoutes";
-
 import path from "path";
 import fileUpload from "express-fileupload";
+
+import userRouter from "./routes/userRoutes";
+import pdfRouter from "./routes/pdfRoutes";
+import adminRouter from "./routes/adminRoutes";
+
 
 const app = express();
 dotenv.config();
 
-const MONGODB_URI =
-  process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/lawfirm";
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/lawfirm";
 const PORT = process.env.PORT || 5000;
 
 dotenv.config();
@@ -33,10 +31,9 @@ app.get("/", (req: any, res: any) => {
   res.render("index");
 });
 
-app.use("/api", router);
-app.use("/api/user", userRouter);
+app.use("/api", userRouter);
 app.use("/api/pdf", pdfRouter);
-app.use("/api/admin", superAdminRouter);
+app.use("/api/admin", adminRouter);
 
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   console.log(error);

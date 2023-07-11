@@ -1,12 +1,13 @@
 import React from "react";
 
-const Modal = (props) => {
+const Modal = (props: any) => {
   return (
-    <>
-      <dialog id={props.id} className="modal" show={true}>
-        <div className="modal-box">{props.children}</div>
-      </dialog>
-    </>
+    <dialog className="modal" id={props.id}>
+      <div className="modal-box">
+        <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onClick={()=>props.close()}>✕</button>
+        {props.children}
+      </div>
+    </dialog>
   );
 };
 

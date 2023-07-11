@@ -1,12 +1,10 @@
 import { Router } from "express";
-import { postRead, upload, getfilterBy, postSearch, getCompanies } from "../controllers/xlsx";
+import { postAddUser, deleteClient, editClient } from "../controllers/admin.controller";
 
 const router: Router = Router();
 
-router.post("/read", postRead);
-router.put("/upload", upload);
-router.get("/read/filter", getfilterBy);
-router.post("/read/filter", postSearch);
-router.get("/companies", getCompanies)
+router.post("/add-user", postAddUser);
+router.delete("/:clientName", deleteClient); //should change to id
+router.put("/:clientName", editClient); //should change to id
 
 export default router;

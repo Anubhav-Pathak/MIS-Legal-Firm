@@ -1,6 +1,9 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import FileUploadModal from "@/components/FileUploadModal";
+import { useAppDispatch } from "@/redux/hooks";
+import { toastActions } from "@/redux/slices/uiSlice";
+
+import AddUserModal from "@/components/AddUserModal";
 import { getCompanies, deleteClient } from "@/utils/API";
 import Link from "next/link";
 import Loading from "@/components/UI/Loading";
@@ -74,21 +77,14 @@ const AdminPage = () => {
 
   return (
     <div>
-      <FileUploadModal />
-      <h1 className="text-4xl font-bold">Welcome, Admin</h1>
-      <h2 className="text-2xl font-bold">Select a company to view data</h2>
-      <div className="flex flex-row gap-2 justify-between">
-        <a
-          className="btn btn-primary text-white flex flex-col text-[24px] p-10 items-center justify-center gap-3"
-          onClick={() => window.file_upload.showModal()}
-        >
-          Create Client +
-        </a>
-      </div>
+      <AddUserModal />
+      <section className="flex flex-wrap items-center justify-between">
+        <h1 className="text-4xl font-bold">Admin Panel</h1>
+        <button className="btn btn-primary" onClick={()=>window.create_user.showModal()} > Create Client + </button>
+      </section>
       <div className="mt-8">
-        {loading ? (
-          <Loading />
-        ) : companies.length > 0 ? (
+        <h2 className="text-2xl font-bold mb-4">Clients -</h2>
+        {loading ? <Loading /> : companies.length > 0 ? (
           companies.map((company) => (
             <div
               className="collapse collapse-plus bg-base-200 mb-4"
@@ -201,12 +197,7 @@ const AdminPage = () => {
           <p>No companies found.</p>
         )}
       </div>
-      <Toast
-        show={showToast}
-        message={toastMessage}
-        styles={`alert-${toastType}`}
-        onCloseHandler={handleCloseToast}
-      />
+      <Toast show={showToast} message={toastMessage} styles={`alert-${toastType}`} onCloseHandler={handleCloseToast} />
     </div>
   );
 };

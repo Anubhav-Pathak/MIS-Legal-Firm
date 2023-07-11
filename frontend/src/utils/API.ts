@@ -1,9 +1,17 @@
-interface ClientData {
-  clientName: string;
-  username: string;
-  password: string;
-  clientFile: File | null;
-  templateFiles: File[];
+import {ClientData} from "@/utils/Types";
+
+export async function login(username: string, password: string) {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/sign-in`,{
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }),
+    }
+  );
+  if (!response.ok) throw Error("Invalid Credentials");
+  const data = await response.json();
+  return data;
 }
 
 export async function postRead(
@@ -105,39 +113,22 @@ export async function getPDFFileNames() {
 
 export async function createClient(clientData: ClientData) {
   const formData = new FormData();
-
   Object.entries(clientData).forEach(([key, value]) => {
     if (key === "clientFile") {
       if (!value) return;
       const blob = new Blob([value.buffer]);
       formData.append(`clientFile`, blob, `clientFile`);
-    } else if (key === "templateFiles") {
-      if (!Array.isArray(value)) return;
-      value.forEach((file, index) => {
-        if (file) {
-          const blob = new Blob([file.buffer]);
-          formData.append(`templateFiles`, blob, `templateFile_${index}`);
-        }
-      });
-    } else if (value !== null) {
-      formData.append(key, typeof value === "string" ? value : String(value));
-    }
+    } else if (value) formData.append(key, typeof value === "string" ? value : String(value));
   });
-
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/admin/create`,
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
-
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/add-user`, {
+      method: "POST",
+      body: formData,
+    });
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.error);
     }
-
     const data = await response.json();
     return data;
   } catch (error: any) {

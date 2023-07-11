@@ -2,27 +2,42 @@
 
 import mongoose from 'mongoose';
 
+export interface UserInterface {
+    company: string,
+    username: string,
+    password: string,
+    clientFile?: string,
+    pdfTemplates?: string[],
+}
+
 const UserSchema = new mongoose.Schema({
+    company: {
+        type: String,
+        required: true,
+        minlength: 3,
+        maxlength: 20,
+        unique: true,
+    },
     username: {
         type: String,
         required: true,
         unique: true,
-        minlength: 3,
-        maxlength: 20
+        minlength: 5,
     },
     password: {
         type: String,
         required: true,
         minlength: 8
     },
-    email: {
+    clientFile: {
         type: String,
         required: false,
-        unique: true,
-        minlength: 5,
-        maxlength: 40,
     },
-});
+    pdfTemplates: {
+        type: Array,
+        required: false,
+    },
+}, { timestamps: true });
 
 const User = mongoose.model('User', UserSchema);
 

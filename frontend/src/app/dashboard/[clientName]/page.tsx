@@ -4,7 +4,7 @@ import React, { useContext } from "react";
 import DataContext, { DataContextProvider } from "@/contexts/DataContext";
 
 import ErrorToast from "@/components/ErrorToast";
-import FileUploadModal from "@/components/FileUploadModal";
+import FileUploadModal from "@/components/AddUserModal";
 import Search from "@/components/Search";
 import Filter from "@/components/Filter";
 import Pagination from "@/components/Pagination";
