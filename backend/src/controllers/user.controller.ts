@@ -7,7 +7,7 @@ import XLSX from "xlsx";
 
 import User from "../models/User";
 
-const privateKey = process.env.JWT_SECRET || 'secret';
+const privateKey = fs.readFileSync(path.join(path.resolve(), 'privateKey.key'));
 
 export async function signIn(req: Request, res: Response) {
     const { username, password }: {
@@ -16,15 +16,11 @@ export async function signIn(req: Request, res: Response) {
     } = req.body;
     try {
         const user = await User.findOne({ username });
-        if (user) {
-            const isPasswordCorrect = await argon2.verify(user.password, password);
-            if (isPasswordCorrect){
-                const token = jwt.sign({ username: user.username }, privateKey, { algorithm: 'RS256' });
-                return res.status(200).send({ message: 'User signed in', token });
-            }
-            else return res.status(400).send({ message: 'User not signed in' });
-        }
-        else return res.status(400).send({ message: 'User not signed in' });
+        if (!user) throw new Error('Invalid Credentials');
+        const isPasswordCorrect = await argon2.verify(user.password, password);
+        if (!isPasswordCorrect) throw new Error('Invalid Creadentials');
+        const token = jwt.sign({user: user._id, name: user.username}, privateKey, { algorithm: 'RS256' });
+        return res.status(200).send({ message: 'User signed in', token, user: user});
     } catch (e: any) {
         return res.status(400).send({ message: e.message });
     }
@@ -179,49 +175,6 @@ export function postSearch(req: Request, res: Response): void {
     res.status(500).send({ message: e.message });
   }
 }
-
-export const getCompanies = (req: Request, res: Response) => {
-  const xlsxDirectoryPath = path.join("src", "data", "xlsx");
-  const templatesDirectoryPath = path.join("src", "data", "templates");
-
-  try {
-    const xlsxDirectories = fs.readdirSync(xlsxDirectoryPath);
-
-    const templatesDirectories = fs.readdirSync(templatesDirectoryPath);
-
-    const companies = [];
-
-    for (const xlsxDirectory of xlsxDirectories) {
-      const xlsxDirectoryFullPath = path.join(xlsxDirectoryPath, xlsxDirectory);
-      const files = fs.readdirSync(xlsxDirectoryFullPath);
-
-      const xlsxFiles = files.filter((file) => path.extname(file) === ".xlsx");
-
-      for (const file of xlsxFiles) {
-        const filePath = path.join(xlsxDirectoryFullPath, file);
-        const stats = fs.statSync(filePath);
-        const sizeInBytes = stats.size;
-        const createdAt = stats.birthtime;
-
-        const workbook: XLSX.WorkBook = XLSX.readFile(filePath);
-        const tabs = workbook.SheetNames;
-
-        companies.push({
-          name: file,
-          sizeInBytes,
-          createdAt,
-          tabs,
-          templates: getTemplates(templatesDirectoryPath, templatesDirectories),
-        });
-      }
-    }
-
-    res.status(200).send({ companies });
-  } catch (error) {
-    console.error("Error reading directory:", error);
-    res.status(500).send({ message: "Error reading directory" });
-  }
-};
 
 const getTemplates = (directoryPath: string, directories: string[]) => {
   try {

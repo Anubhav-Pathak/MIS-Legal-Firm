@@ -22,5 +22,4 @@ const toastSlice = createSlice({
 });
 
 export const toastActions = toastSlice.actions;
-
 export const toastReducer =  toastSlice.reducer;

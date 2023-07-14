@@ -35,8 +35,8 @@ const Toast = (props: any) => {
   return (
     <>
       {show && (
-        <div className="toast toast-top toast-end" onClick={handleClose}>
-          <div className={`alert bg-${type} flex flex-col justify-start`}>
+        <div className="toast toast-bottom toast-start" onClick={handleClose}>
+          <div className={`alert alert-${type} flex flex-col justify-start`}>
             <div className="font-bold uppercase">{message}</div>
             {props.children}
             <progress className="progress progress-white w-56" value={progressValue} max="100"></progress>

@@ -18,10 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-      <Navbar company={""} />
-        <main className="min-h-screen bg-secondary p-4 md:p-8">
-          <Providers>{children}</Providers>
-        </main>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

@@ -1,117 +1,57 @@
 "use client";
-import { useState } from "react";
+import React, { ReactHTML, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import Image from "next/image";
+import {useRouter} from "next/navigation";
+
+import Input from "@/components/UI/Input";
+import Button from "@/components/UI/Button";
+import Toast from "@/components/UI/Toast";
+import { authActions, sendLogin } from "@/redux/slices/authSlice";
+import Loading from "@/components/UI/Loading";
 
 export default function Home() {
-
   const dispatch = useDispatch();
-  const { user } = useSelector((state: any) => state.user);
-
+  const router = useRouter();
+  const {isAuthenticated, user} = useSelector((state: any) => state.authReducer);
+  
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [showError, setShowError] = useState(false);
 
-  const handleSubmit = (e: any) => {
-    e.preventDefault();
+  const changeUsernameHandler = (e: any) => {
+    setUsername(e.target.value);
+  };
+  const changePasswordHandler = (e: any) => {
+    setPassword(e.target.value);
+  };
+
+  const submitHandler = (event: React.FormEvent) => {
+    event.preventDefault();
     setLoading(true);
-    if (username && password) {
-      setShowSuccess(true);
-      setShowError(false);
-      setUsername("");
-      setPassword("");
-    } else {
-      setShowError(true);
-      setShowSuccess(false);
-    }
+    dispatch(sendLogin(username, password));
     setLoading(false);
   };
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/dashboard/"+user.company);
+    }
+  }, [isAuthenticated, user]);
+
   return (
-    <div className="flex flex-col min-h-screen justify-center items-center bg-gray-200">
-      <div className="bg-white shadow-lg rounded-lg w-1/2 h-[32rem] p-16 relative flex flex-col justify-end gap-8 drop-shadow-xl">
-        <div
-          className="w-full h-1/2 bg-red-800 top-0 left-0 absolute"
-          style={{ clipPath: `polygon(0 0, 100% 0, 0 100%)` }}
-        ></div>
-        <h2 className="text-5xl font-bold mb-8 absolute -left-10 -top-10 text-white drop-shadow-2xl">
-          <span className="text-9xl text-black">P</span>rasanna&apos;s Law Firm
-        </h2>
-
-        {showError || showSuccess ? (
-          <div
-            className={`alert alert-${
-              showError ? "error" : "success"
-            } shadow-lg z-10`}
-          >
-            <div>
-              <span>
-                {showError
-                  ? "Warning: Invalid username or password!"
-                  : "Your login is successful!"}
-              </span>
-            </div>
-          </div>
-        ) : null}
-
-        <form
-          className="flex flex-col items-center justify-center gap-4 z-10"
-          onSubmit={handleSubmit}
-        >
-          <div className="relative w-full max-w-lg">
-            <input
-              type="text"
-              placeholder="Enter your username"
-              className={`input input-bordered input-${
-                showError ? "error" : "primary"
-              } bg-gray-300 pr-10 w-full max-w-lg focus:outline-none text-black text-[24px]`}
-              onChange={(e) => setUsername(e.target.value)}
-              value={username}
-            />
-            <Image
-              src="/user-icon.svg"
-              width={50}
-              height={50}
-              alt="padlock"
-              className="absolute top-1/2 right-3 transform -translate-y-1/2 h-6 w-6"
-            />
-          </div>
-          <div className="relative w-full max-w-lg">
-            <input
-              type="password"
-              placeholder="Enter your password"
-              className={`input input-bordered input-${
-                showError ? "error" : "primary"
-              } bg-gray-300 pr-10 w-full max-w-lg focus:outline-none text-black text-[24px]`}
-              onChange={(e) => setPassword(e.target.value)}
-              value={password}
-            />
-            <Image
-              src="/padlock-icon.svg"
-              width={50}
-              height={50}
-              alt="padlock"
-              className="absolute top-1/2 right-3 transform -translate-y-1/2 h-6 w-6"
-            />
-          </div>
-          <button
-            className={`btn btn-primary text-white text-[16px] max-w-sm w-full ${
-              loading ? "btn-disabled" : ""
-            }`}
-          >
-            {loading ? (
-              <div className="flex items-center justify-center gap-2">
-                <div className="border-t-transparent border-solid animate-spin rounded-full border-white border-8"></div>
-                <span>Logging you in...</span>
-              </div>
-            ) : (
-              "Login"
-            )}
-          </button>
-        </form>
+    <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
+      <a href="/" className="text-4xl z-10 text-primary font-bold">ICCAN</a>
+      <div className="w-full rounded-lg md:mt-0 sm:max-w-md xl:p-0 bg-base-300 shadow-lg">
+        <div className="space-y-4 md:space-y-6 sm:p-8 text-primary">
+          <h1 className="text-xl font-bold leading-tight tracking-tight">Sign in to your account</h1>
+          <form className="space-y-4 md:space-y-6" onSubmit={submitHandler}>
+            <Input label="Username" input={{type: "text", value: username, onChange: changeUsernameHandler, className: "input block mt-2 w-full"}}/>
+            <Input label="Password" input={{type: "password", value: password, onChange: changePasswordHandler, className: "input block mt-2 w-full"}}/>
+            <Button type="submit" styles="btn-primary">{ loading ? <span className="loading loading-spinner loading-xs"></span> : "Sign in"}</Button>
+          </form>
+        </div>
       </div>
+      <Toast />
     </div>
   );
 }

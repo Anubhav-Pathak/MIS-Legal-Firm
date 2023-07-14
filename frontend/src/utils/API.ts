@@ -1,7 +1,7 @@
 import {ClientData} from "@/utils/Types";
 
 export async function login(username: string, password: string) {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/sign-in`,{
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sign-in`,{
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -9,9 +9,7 @@ export async function login(username: string, password: string) {
       body: JSON.stringify({ username, password }),
     }
   );
-  if (!response.ok) throw Error("Invalid Credentials");
-  const data = await response.json();
-  return data;
+  return response;
 }
 
 export async function postRead(
@@ -132,7 +130,7 @@ export async function createClient(clientData: ClientData) {
     const data = await response.json();
     return data;
   } catch (error: any) {
-    throw new Error("Error creating client: " + error?.message);
+    throw new Error("Error creating client" + error?.message);
   }
 }
 
@@ -152,15 +150,12 @@ export async function getTemplates(company: string) {
 }
 
 export async function getCompanies() {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/companies`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/companies`,{
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
   if (!response.ok) throw new Error("Something went wrong");
   const data = await response.json();
   return data;

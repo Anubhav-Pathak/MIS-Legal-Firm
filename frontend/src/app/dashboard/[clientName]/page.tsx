@@ -3,7 +3,6 @@ import React, { useContext } from "react";
 
 import DataContext, { DataContextProvider } from "@/contexts/DataContext";
 
-import ErrorToast from "@/components/ErrorToast";
 import FileUploadModal from "@/components/AddUserModal";
 import Search from "@/components/Search";
 import Filter from "@/components/Filter";
@@ -16,7 +15,7 @@ const Dashboard = ({ params }: { params: { clientName: string } }) => {
   const dataContext = useContext(DataContext);
   return (
     <DataContextProvider clientName={company}>
-      <ErrorToast />
+      {/* <ErrorToast /> */}
       <FileUploadModal />
       <TimelineModal />
       <Search />

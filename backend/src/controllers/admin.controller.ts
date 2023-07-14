@@ -1,9 +1,10 @@
 import path from "path";
 import { NextFunction, Request, Response } from "express";
 import fs from "fs";
+import XLSX from "xlsx";
 import * as argon2 from "argon2";
 
-import User from "../models/User";
+import User, {UserInterface} from "../models/User";
 interface UploadedFile {
   name: string;
   mv: (path: string) => Promise<void>;
@@ -62,5 +63,27 @@ export const editClient = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error:", error);
     res.status(500).send({ error: "Error editing client" });
+  }
+};
+
+export const getUsers = async (req: Request, res: Response, next: NextFunction) => {
+  try{
+    const users = await User.find().select("-password");
+    if (!users) throw Error("Users not found");
+    const clients: any = [];
+    users.map((user: any) => {
+      const stats = fs.statSync(user.clientFile);
+      const sizeInBytes = stats.size;
+      const fileCreatedOn = stats.birthtime;
+      clients.push({ 
+        ...user._doc,
+        sizeInBytes,
+        fileCreatedOn,
+      });
+    });
+    res.status(200).send({ clients });  
+  } catch (err: any){
+    if (!err.statusCode) err.statusCode = 500;
+    next(err);
   }
 };
