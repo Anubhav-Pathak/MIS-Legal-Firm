@@ -2,12 +2,11 @@ import { login } from "@/utils/API";
 import { createSlice } from "@reduxjs/toolkit";
 import { toastActions } from "@/redux/slices/uiSlice";
 
+import {useRouter} from "next/navigation";
+
 const initialState = {
-    user: null,
-    token: null,
+    company: null,
     isAuthenticated: false,
-    isLoading: false,
-    error: null,
 };
 
 const authSlice = createSlice({
@@ -16,10 +15,11 @@ const authSlice = createSlice({
     reducers: {
         login: (state, action) => {
             state.isAuthenticated = true;
-            state.user = action.payload;
+            state.company = action.payload;
         },
         logout: (state) => {
             state.isAuthenticated = false;
+            state.company = null;
         }
     }
 });
@@ -29,7 +29,8 @@ export const sendLogin = (username: string, password: string) => {
             const response = await login(username, password);
             if (!response.ok) throw new Error("Login Failed")
             const data = await response.json();
-            dispatch(authActions.login(data.user));
+            localStorage.setItem("token", data.token);
+            dispatch(authActions.login(data.company));
         } catch (error: any){
             dispatch(toastActions.showToast({message: error.message, type: "error"}));
         }

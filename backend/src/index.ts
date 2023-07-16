@@ -27,6 +27,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(path.resolve(), "data")));
 app.use(express.static(path.join(path.resolve(), "public")));
 
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
+
 app.get("/", (req: any, res: any) => {
   res.render("index");
 });

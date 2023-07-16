@@ -7,12 +7,11 @@ import Input from "@/components/UI/Input";
 import Button from "@/components/UI/Button";
 import Toast from "@/components/UI/Toast";
 import { authActions, sendLogin } from "@/redux/slices/authSlice";
-import Loading from "@/components/UI/Loading";
 
 export default function Home() {
   const dispatch = useDispatch();
   const router = useRouter();
-  const {isAuthenticated, user} = useSelector((state: any) => state.authReducer);
+  const {isAuthenticated, company} = useSelector((state: any) => state.authReducer);
   
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -27,16 +26,14 @@ export default function Home() {
 
   const submitHandler = (event: React.FormEvent) => {
     event.preventDefault();
-    setLoading(true);
     dispatch(sendLogin(username, password));
-    setLoading(false);
   };
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.push("/dashboard/"+user.company);
+      router.push("/dashboard/"+company);
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated]);
 
   return (
     <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">

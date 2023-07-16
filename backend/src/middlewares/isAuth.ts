@@ -7,7 +7,6 @@ const privateKey = fs.readFileSync(path.join(path.resolve(), 'privateKey.key'));
 
 const isAuth = (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.get("Authorization");
-    console.log(authHeader);
     if (!authHeader) {
         const error = new Error("Not authenticated!");
         throw error;
@@ -23,7 +22,7 @@ const isAuth = (req: Request, res: Response, next: NextFunction) => {
         const error = new Error("Not authenticated!");
         throw error;
     }
-    req.userId = decodedToken.userId;
+    req.userId = decodedToken.user;
     next();
 }
 

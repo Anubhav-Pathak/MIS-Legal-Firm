@@ -8,8 +8,11 @@ import XLSX from "xlsx";
 import User from "../models/User";
 
 const privateKey = fs.readFileSync(path.join(path.resolve(), 'privateKey.key'));
+const worksheetPath = path.join("src", "data", "xlsx", "data.xlsx");
+const DEFAULT_LIMIT = 15;
+const DEFAULT_PAGE = 1;
 
-export async function signIn(req: Request, res: Response) {
+export async function signIn(req: Request, res: Response, next: NextFunction) {
     const { username, password }: {
         username: string,
         password: string,
@@ -19,33 +22,31 @@ export async function signIn(req: Request, res: Response) {
         if (!user) throw new Error('Invalid Credentials');
         const isPasswordCorrect = await argon2.verify(user.password, password);
         if (!isPasswordCorrect) throw new Error('Invalid Creadentials');
-        const token = jwt.sign({user: user._id, name: user.username}, privateKey, { algorithm: 'RS256' });
-        return res.status(200).send({ message: 'User signed in', token, user: user});
-    } catch (e: any) {
-        return res.status(400).send({ message: e.message });
+        const token = jwt.sign({user: user._id}, privateKey, { algorithm: 'RS256' });
+        return res.status(200).send({ message: 'User signed in', token, company: user.company});
+    } catch (err: any) {
+      if (!err.statusCode) err.statusCode = 500;
+      next(err);
     }
 }
 
-const worksheetPath = path.join("src", "data", "xlsx", "data.xlsx");
-const DEFAULT_LIMIT = 15;
-const DEFAULT_PAGE = 1;
-
-export function postRead(req: Request, res: Response): void {
+export async function postRead(req: Request, res: Response, next: NextFunction) {
   try {
-    const { company, tab } = req.body;
-    const worksheetPath = path.join("src", "data", "xlsx", company + ".xlsx");
+    const user = await User.findById(req.userId);
+    if (!user) throw Error("User not found");
+
+    const worksheetPath = path.join("src", "data", "xlsx", user.company + ".xlsx");
+
     const workbook: XLSX.WorkBook = XLSX.readFile(worksheetPath);
     if (!workbook) throw { status: 500, message: "Error reading file" };
 
-    const worksheet: XLSX.WorkSheet =
-      workbook.Sheets[tab || workbook.SheetNames[0]];
+    const worksheet: XLSX.WorkSheet = workbook.Sheets[req.tab ?? workbook.SheetNames[0]];
     if (!worksheet) throw { status: 404, message: "Company not found" };
 
     const page = req.query.page ? +req.query.page : DEFAULT_PAGE;
     const limit = req.body.limit ?? DEFAULT_LIMIT;
 
-    const data: Record<string, number | string>[] =
-      XLSX.utils.sheet_to_json(worksheet);
+    const data: Record<string, number | string>[] = XLSX.utils.sheet_to_json(worksheet);
 
     if (page > Math.ceil(data.length / limit))
       throw { status: 400, message: "Page must be less than total pages" };
@@ -54,19 +55,13 @@ export function postRead(req: Request, res: Response): void {
 
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    const results: Record<string, number | string>[] = data.slice(
-      startIndex,
-      endIndex
-    );
-
+    const results: Record<string, number | string>[] = data.slice(startIndex, endIndex);
     const remainingData = Math.max(data.length - endIndex, 0);
     const totalPages = Math.ceil(data.length / limit);
-
-    res
-      .status(200)
-      .send({ results, remainingData, totalPages, tabs: workbook.SheetNames });
-  } catch (e: any) {
-    res.status(500).send({ message: e.message });
+    res.status(200).send({ results, remainingData, totalPages, tabs: workbook.SheetNames });
+  } catch (err: any) {
+    if (!err.statusCode) err.statusCode = 500;
+    next(err);
   }
 }
 

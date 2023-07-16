@@ -12,23 +12,17 @@ export async function login(username: string, password: string) {
   return response;
 }
 
-export async function postRead(
-  pageNumber: Number,
-  company: string,
-  limit: Number,
-  tab?: string
-) {
+export async function postRead(pageNumber: Number, limit: Number, token: string, tab?: string) {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/read?page=${pageNumber}`,
     {
       method: "POST",
       headers: {
+        "Authorization": `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        company: company,
         limit: limit,
-        tab: tab,
       }),
     }
   );
