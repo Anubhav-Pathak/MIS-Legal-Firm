@@ -26,9 +26,7 @@ export async function postRead(pageNumber: Number, limit: Number, token: string,
       }),
     }
   );
-  const data = await response.json();
-  if (!response.ok) throw Error(data.message);
-  return data;
+  return response;
 }
 
 export async function postSearch(
