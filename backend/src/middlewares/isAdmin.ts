@@ -6,7 +6,7 @@ import User from "../models/User";
 
 const privateKey = fs.readFileSync(path.join(path.resolve(), 'privateKey.key'));
 
-const isAuth = async (req: Request, res: Response, next: NextFunction) => {
+const isAdmin = async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.get("Authorization");
     if (!authHeader) {
         const error = new Error("Not authenticated!");
@@ -16,7 +16,8 @@ const isAuth = async (req: Request, res: Response, next: NextFunction) => {
     let decodedToken;
     try {
         decodedToken = jwt.verify(token, privateKey);
-    } catch (err) {
+    }
+    catch (err) {
         throw err;
     }
     if (!decodedToken) {
@@ -24,12 +25,16 @@ const isAuth = async (req: Request, res: Response, next: NextFunction) => {
         throw error;
     }
     req.userId = decodedToken.user;
-    const result = await User.findById(decodedToken.user)
+    const result = await User.findById(decodedToken.user);
     if (!result) {
+        throw new Error("User not found!");
+    }
+    if (result.company != "icann") {
         throw new Error("Not authenticated!");
     }
-    
     next();
+    
+
 }
 
-export default isAuth;
+export default isAdmin;
