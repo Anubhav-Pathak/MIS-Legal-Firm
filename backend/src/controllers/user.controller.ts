@@ -19,9 +19,9 @@ export async function signIn(req: Request, res: Response, next: NextFunction) {
     } = req.body;
     try {
         const user = await User.findOne({ username });
-        if (!user) throw new Error('Invalid Credentials');
+        if (!user) throw {statusCode: 401, message: 'Invalid Credentials'};
         const isPasswordCorrect = await argon2.verify(user.password, password);
-        if (!isPasswordCorrect) throw new Error('Invalid Creadentials');
+        if (!isPasswordCorrect) throw {statusCode: 401, message: 'Invalid Credentials'}
         const token = jwt.sign({user: user._id}, privateKey, { algorithm: 'RS256' });
         return res.status(200).send({ message: 'User signed in', token, company: user.company});
     } catch (err: any) {

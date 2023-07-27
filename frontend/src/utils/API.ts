@@ -101,7 +101,7 @@ export async function getPDFFileNames() {
   return data;
 }
 
-export async function createClient(clientData: ClientData) {
+export async function createClient(clientData: ClientData, token: string) {
   const formData = new FormData();
   Object.entries(clientData).forEach(([key, value]) => {
     if (key === "clientFile") {
@@ -114,6 +114,9 @@ export async function createClient(clientData: ClientData) {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/add-user`, {
       method: "POST",
       body: formData,
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
     });
     if (!response.ok) {
       const errorData = await response.json();
@@ -141,11 +144,12 @@ export async function getTemplates(company: string) {
   return data;
 }
 
-export async function getCompanies() {
+export async function getCompanies(token: string) {
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/companies`,{
     method: "GET",
     headers: {
       "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
     },
   });
   if (!response.ok) throw new Error("Something went wrong");

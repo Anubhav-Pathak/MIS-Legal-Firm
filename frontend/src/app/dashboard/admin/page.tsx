@@ -12,10 +12,12 @@ const AdminPage = () => {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const token = localStorage.getItem("token") as string;
+
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
-        const { clients } = await getCompanies();
+        const { clients } = await getCompanies(token);
         setClients(clients);
         setLoading(false);
       } catch (error) {
@@ -35,7 +37,7 @@ const AdminPage = () => {
       <section className="mt-8 flex flex-col gap-4 p-8">
         <h2 className="text-2xl font-bold mb-4">Clients -</h2>
         {loading ? <Loading /> : clients.length > 0 ? (
-          clients.map(client => (
+          clients.map((client, index) => (
             <Collapse header={
               <div className="flex flex-row justify-between">
                 <h3>{client.company}</h3>
@@ -48,7 +50,7 @@ const AdminPage = () => {
                   </button>
                 </div>
               </div>
-            }>
+            } key={index}>
 
               <div className="flex flex-col w-full lg:flex-row">
                 <div className="grid card place-items-center">

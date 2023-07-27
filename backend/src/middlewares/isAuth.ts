@@ -8,10 +8,7 @@ const privateKey = fs.readFileSync(path.join(path.resolve(), 'privateKey.key'));
 
 const isAuth = async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.get("Authorization");
-    if (!authHeader) {
-        const error = new Error("Not authenticated!");
-        throw error;
-    }
+    if (!authHeader) throw { statusCode: 401, message: "Not authenticated!" }
     const token = authHeader.split(" ")[1];
     let decodedToken;
     try {
@@ -19,16 +16,10 @@ const isAuth = async (req: Request, res: Response, next: NextFunction) => {
     } catch (err) {
         throw err;
     }
-    if (!decodedToken) {
-        const error = new Error("Not authenticated!");
-        throw error;
-    }
-    req.userId = decodedToken.user;
+    if (!decodedToken) throw { statusCode: 401, message: "Not authenticated!" }
     const result = await User.findById(decodedToken.user)
-    if (!result) {
-        throw new Error("Not authenticated!");
-    }
-    
+    if (!result) throw { statusCode: 401, message: "Not authenticated!" }
+    req.user = result;
     next();
 }
 

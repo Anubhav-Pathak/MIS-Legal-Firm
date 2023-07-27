@@ -30,7 +30,10 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && company==="iccan") {
+      router.push("/dashboard/admin");
+    } 
+    else if (isAuthenticated) {
       router.push("/dashboard/"+company);
     }
   }, [isAuthenticated]);
