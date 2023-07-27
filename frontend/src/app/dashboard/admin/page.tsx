@@ -15,6 +15,8 @@ const AdminPage = () => {
   const token = localStorage.getItem("token") as string;
 
   useEffect(() => {
+    const token = localStorage.getItem("token") as string;
+    if(!token) window.location.href = "/";
     const fetchCompanies = async () => {
       try {
         const { clients } = await getCompanies(token);
@@ -57,11 +59,11 @@ const AdminPage = () => {
                   <div className="card w-96 bg-base-100 shadow-xl">
                     <div className="card-body">
                       <h2 className="card-title mb-4">Client WorkBook <div className="badge badge-primary">{client.sizeInBytes}&nbsp;KB</div></h2>
-                      <span>Updated On- <div className="badge badge-primary">{new Date(client.filelastUpdatedOn).toDateString()}</div></span>
+                      <span>Updated On- <div className="badge badge-primary">{new Date(client.fileCreatedOn).toDateString()}</div></span>
                       <span>Created On- <div className="badge badge-primary">{new Date(client.fileCreatedOn).toDateString()}</div></span>
-                      <div className="card-actions justify-end">
+                      {/* <div className="card-actions justify-end">
                         <button className="btn btn-primary">Open</button>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 </div> 

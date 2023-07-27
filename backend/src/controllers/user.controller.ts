@@ -8,7 +8,6 @@ import XLSX from "xlsx";
 import User from "../models/User";
 
 const privateKey = fs.readFileSync(path.join(path.resolve(), 'privateKey.key'));
-const worksheetPath = path.join("src", "data", "xlsx", "data.xlsx");
 const DEFAULT_LIMIT = 15;
 const DEFAULT_PAGE = 1;
 
@@ -32,7 +31,7 @@ export async function signIn(req: Request, res: Response, next: NextFunction) {
 
 export async function postRead(req: Request, res: Response, next: NextFunction) {
   try {
-    const user = await User.findById(req.userId);
+    const user = req.user;
     if (!user) throw Error("User not found");
 
     const worksheetPath = path.join("src", "data", "xlsx", user.company + ".xlsx");
@@ -47,6 +46,7 @@ export async function postRead(req: Request, res: Response, next: NextFunction) 
     const limit = req.body.limit ?? DEFAULT_LIMIT;
 
     const data: Record<string, number | string>[] = XLSX.utils.sheet_to_json(worksheet);
+    const [headers] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
     if (page > Math.ceil(data.length / limit))
       throw { status: 400, message: "Page must be less than total pages" };
@@ -58,7 +58,7 @@ export async function postRead(req: Request, res: Response, next: NextFunction) 
     const results: Record<string, number | string>[] = data.slice(startIndex, endIndex);
     const remainingData = Math.max(data.length - endIndex, 0);
     const totalPages = Math.ceil(data.length / limit);
-    res.status(200).send({ results, remainingData, totalPages, tabs: workbook.SheetNames });
+    res.status(200).send({headers, results, remainingData, totalPages, tabs: workbook.SheetNames });
   } catch (err: any) {
     if (!err.statusCode) err.statusCode = 500;
     next(err);

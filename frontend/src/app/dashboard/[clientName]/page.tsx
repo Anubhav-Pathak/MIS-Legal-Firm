@@ -9,17 +9,19 @@ import Table from "@/components/Table";
 import TimelineModal from "@/components/TimelineModal";
 import Toast from "@/components/UI/Toast";
 
-import { fetchData } from "@/redux/slices/dataSlice";
+import { dataActions, fetchData } from "@/redux/slices/dataSlice";
 import { postRead } from "@/utils/API";
+import { useAppSelector } from "@/redux/hooks";
+import Loading from "@/components/UI/Loading";
 
 const Dashboard = () => {
 
   const dispatch = useDispatch();
-
+  const {data, isLoading} = useAppSelector(state => state.dataReducer);
   useEffect(() => {
-    const token = localStorage.getItem("token") as string;
+    const token = localStorage?.getItem("token") as string;
     if(!token) window.location.href = "/";
-    dispatch(fetchData(1, 5, token))
+    dispatch(fetchData(1, 5, token));
   }, []);
 
   return (
@@ -28,7 +30,7 @@ const Dashboard = () => {
       <Search />
       <Filter />
       <Pagination />
-      <Table />
+      {isLoading ? <Loading /> : <Table data={data}/>}
       <Toast />
     </main>
   );

@@ -62,7 +62,7 @@ const Pagination = () => {
         className="flex items-start mb-8 gap-4 justify-center flex-col sm:flex-row"
       >
         <Input
-          label="Current Page - "
+          label="Go To Page - "
           input={{
             type: "number",
             min: 1,
@@ -73,7 +73,7 @@ const Pagination = () => {
           }}
         />
         <Input
-          label="Number of Rows - "
+          label="Limit - "
           input={{
             type: "number",
             min: 1,
