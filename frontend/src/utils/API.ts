@@ -12,7 +12,7 @@ export async function login(username: string, password: string) {
   return response;
 }
 
-export async function postRead(pageNumber: Number, limit: Number, token: string, tab?: string) {
+export async function postRead(pageNumber: Number, limit: Number, token: string, user?: Object, tab?: string ) {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/read?page=${pageNumber}`,
     {
@@ -23,6 +23,7 @@ export async function postRead(pageNumber: Number, limit: Number, token: string,
       },
       body: JSON.stringify({
         limit: limit,
+        user: user,
       }),
     }
   );

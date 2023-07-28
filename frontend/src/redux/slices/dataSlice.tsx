@@ -6,6 +6,7 @@ import { useAppSelector } from "../hooks";
 
 const initialState = {
     data: {headers: [], results: [], remainingData: 0, totalPages: 0, tabs: []},
+    isAdmin: false,
     pages: 1,
     limit: 15,
     isLoading: false,
@@ -27,15 +28,20 @@ const dataSlice = createSlice({
         },
         changeLimit: (state, action) => {
             state.limit = action.payload;
+        },
+        changeAdmin: (state, action) => {
+            state.isAdmin = action.payload;
         }
     }
 });
 
-export const fetchData = (page: number, limit: number, token: string) => {
+export const fetchData = (page: number, limit: number, token: string, admin?: boolean, user?: Object) => {
     return async (dispatch: any) => {
         try{
             dispatch(dataActions.loading(true));
-            const response =  await postRead(page, limit, token);
+            let response;
+            if (user && admin) response = await postRead(page, limit, token, user);
+            else response =  await postRead(page, limit, token);
             if (!response.ok) throw new Error("Fetch Failed");
             const data = await response.json();
             dispatch(dataActions.changeData(data));

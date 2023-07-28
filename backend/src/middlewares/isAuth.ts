@@ -19,7 +19,7 @@ const isAuth = async (req: Request, res: Response, next: NextFunction) => {
     if (!decodedToken) throw { statusCode: 401, message: "Not authenticated!" }
     const result = await User.findById(decodedToken.user)
     if (!result) throw { statusCode: 401, message: "Not authenticated!" }
-    req.user = result;
+    req.user = req.body.user ? req.body.user : result;
     next();
 }
 

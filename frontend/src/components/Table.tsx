@@ -3,7 +3,6 @@ import DataContext from "@/contexts/DataContext";
 import { fetchData } from "@/redux/slices/dataSlice";
 import { useEffect, useMemo, useState, useContext, Key } from "react";
 import Button from "./UI/Button";
-import TableError from "./UI/TableError";
 import Loading from "./UI/Loading";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import {addRow, removeRow, toggleRowSelection, clearRowSelection, } from "@/redux/slices/rowSlice";
@@ -14,7 +13,7 @@ const Header = ({headers}) => {
   return (
     <thead className="bg-primary text-neutral">
       <tr>
-        <th></th>
+        <th className="bg-primary"></th>
         {headers.map((header: string, index: Key) => <td key={index}>{header}</td>)}
       </tr>
     </thead> 
@@ -22,16 +21,27 @@ const Header = ({headers}) => {
 };
 
 const Body = ({body, headers}) => {
+  const isAdmin = useAppSelector((state) => state.dataReducer.isAdmin);
+  const onSelectHandler = (e: any) => {
+    console.log(e.target.parentNode.parentNode.childNodes[0].value);
+  }
+  const onClickHandler = (e: any) => {
+    window.timeline.showModal();
+    console.log(e.target.parentNode.childNodes[0].childNodes[0].value);
+  }
   return (
     <tbody>
       {body.map((row:Array<string>, index:Key) => 
-        <tr key={index} className="hover">
+        <tr key={index} className="hover cursor-pointer" onClick={onClickHandler}>
           <th>
+            <input type="hidden" name="arbno" value={row["ARB NO"]} />
+            {isAdmin && 
             <label>
-              <input type="checkbox" className="checkbox" />
+              <input type="checkbox" className="checkbox" onClick={onSelectHandler}/>
             </label>
+            }
           </th>
-          {headers.map((header:string, index:Key) => header in row ? <td key={index}>{row[header]}</td> : <td>-</td>)}
+          {headers.map((header:string, index:Key) => header in row ? <td key={index}>{row[header]}</td> : <td key={index}>-</td>)}
         </tr>
       )}
     </tbody>
@@ -41,7 +51,7 @@ const Body = ({body, headers}) => {
 const Table = ({data}) => {
   return (
     <div className="overflow-x-auto">
-      <table className="table table-zebra table-sm table-pin-cols">
+      <table className="table table-zebra table-xs table-pin-cols">
         <Header headers={data.headers} />
         <Body body={data.results} headers={data.headers}/>
       </table>
