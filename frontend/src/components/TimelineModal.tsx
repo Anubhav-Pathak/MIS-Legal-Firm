@@ -1,18 +1,33 @@
-import React, { use } from "react";
+import React, { use, useEffect } from "react";
 import { useAppSelector } from "@/redux/hooks";
 
 import Modal from "./UI/Modal";
 import Timeline from "./UI/Timeline";
-import Button from "./UI/Button";
 
 const TimelineModal = () => {
+  const modalRow : any = useAppSelector((state) => state.rowReducer.modalRow);
+
+  const filteredRow : Array<Object> = [];
+  
+  Object.keys(modalRow).filter((column) => {
+    const date = modalRow[column];
+    if (String(date).match(/^\d{2}\.\d{2}\.\d{4}$/)) {
+      filteredRow.push({column, date});
+    }
+  });
+  
+
   return (
     <Modal id="timeline" close={()=>window.timeline.close()}>
-      <h1 className="font-bold mb-4">Current Progress: </h1>
-      <Timeline date={"20/12/2022"}>
-        <h1>Header</h1>
-        <Button styles="btn-xs btn-primary mt-4">Generate PDF</Button>
-      </Timeline>
+      <h6 className="text-xs">Arbitration Number: {modalRow["ARB NO"]}</h6>
+      <h1 className="text-lg font-bold mb-4">Current Status: {modalRow["CURRENT STATUS"]}</h1>
+      {filteredRow.map((row, index) => {
+        return (
+          <Timeline date={row.date} key={index}>
+            <h1>{row.column}</h1>
+          </Timeline>
+        );
+      })}
     </Modal>
   );
 };

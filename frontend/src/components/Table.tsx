@@ -1,13 +1,8 @@
 "use client";
-import DataContext from "@/contexts/DataContext";
-import { fetchData } from "@/redux/slices/dataSlice";
-import { useEffect, useMemo, useState, useContext, Key } from "react";
-import Button from "./UI/Button";
-import Loading from "./UI/Loading";
+import { Key } from "react";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import {addRow, removeRow, toggleRowSelection, clearRowSelection, } from "@/redux/slices/rowSlice";
-import Link from "next/link";
-import { Props, ScriptProps } from "next/script";
+
+import { rowActions } from "@/redux/slices/rowSlice";
 
 const Header = ({headers}) => {
   return (
@@ -21,20 +16,23 @@ const Header = ({headers}) => {
 };
 
 const Body = ({body, headers}) => {
+
+  const dispatch = useAppDispatch();
   const isAdmin = useAppSelector((state) => state.dataReducer.isAdmin);
   const onSelectHandler = (e: any) => {
     console.log(e.target.parentNode.parentNode.childNodes[0].value);
   }
   const onClickHandler = (e: any) => {
-    window.timeline.showModal();
-    console.log(e.target.parentNode.childNodes[0].childNodes[0].value);
+    const row = e.target.parentNode.childNodes[0].childNodes[0].value;
+    const rowObj = JSON.parse(row);
+    dispatch(rowActions.modalRow(rowObj));
   }
   return (
     <tbody>
       {body.map((row:Array<string>, index:Key) => 
         <tr key={index} className="hover cursor-pointer" onClick={onClickHandler}>
           <th>
-            <input type="hidden" name="arbno" value={row["ARB NO"]} />
+            <input type="hidden" name="arbno" value={JSON.stringify(row)} />
             {isAdmin && 
             <label>
               <input type="checkbox" className="checkbox" onClick={onSelectHandler}/>
