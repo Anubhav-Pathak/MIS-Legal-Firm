@@ -12,7 +12,7 @@ const isAuth = async (req: Request, res: Response, next: NextFunction) => {
     const token = authHeader.split(" ")[1];
     let decodedToken;
     try {
-        decodedToken = jwt.verify(token, privateKey);
+        decodedToken = jwt.verify(token, privateKey, { algorithms: ['RS256'] });
     } catch (err) {
         throw err;
     }

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React from "react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -8,11 +8,14 @@ import { toastActions } from "@/redux/slices/uiSlice";
 
 const Toast = (props: any) => {
   const dispatch = useAppDispatch();
-  const {show, message, type} = useSelector((state: any) => state.toastReducer);
+  const { show, message, type } = useSelector(
+    (state: any) => state.toastReducer
+  );
+
   const [progressValue, setProgressValue] = useState(100);
   const handleClose = () => {
     dispatch(toastActions.hideToast());
-  }
+  };
   useEffect(() => {
     let timeout: NodeJS.Timeout;
     let interval: NodeJS.Timeout;
@@ -20,7 +23,9 @@ const Toast = (props: any) => {
     if (show) {
       let progress = 100;
       setProgressValue(progress);
-      timeout = setTimeout(() => {handleClose();}, 5000);
+      timeout = setTimeout(() => {
+        handleClose();
+      }, 5000);
       interval = setInterval(() => {
         progress -= 1;
         setProgressValue(progress);
@@ -32,15 +37,30 @@ const Toast = (props: any) => {
     };
   }, [show]);
 
+  const colourVariants: Record<string, string> = {
+    error: "alert-error",
+    success: "alert-success",
+    warning: "alert-warning",
+    info: "alert-info",
+  };
+
   return (
     <>
       {show && (
-        <div className="toast toast-bottom toast-start" onClick={handleClose}>
-          <div className={`alert alert-${type} flex flex-col justify-start`}>
-            {console.log(`alert alert-${type} flex flex-col justify-start`)}
+        <div
+          className="toast toast-bottom toast-start z-50 cursor-pointer"
+          onClick={handleClose}
+        >
+          <div
+            className={`alert ${colourVariants[type]} flex flex-col justify-start border-primary border-2`}
+          >
             <div className="font-bold uppercase">{message}</div>
             {props.children}
-            <progress className="progress progress-white w-56" value={progressValue} max="100"></progress>
+            <progress
+              className="progress progress-white w-56"
+              value={progressValue}
+              max="100"
+            ></progress>
           </div>
         </div>
       )}
