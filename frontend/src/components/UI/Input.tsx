@@ -1,13 +1,22 @@
 import React from "react";
 
-const Input = React.forwardRef<any, any>((props, ref) => {
-  return (
-    <div className={props.style}>
-      {props.label && <label htmlFor={props.input.id}>{props.label}</label>}
-      <input ref={ref} {...props.input} />
-      {props.children}
-    </div>
-  );
-});
+interface InputProps {
+  style?: string;
+  label?: string;
+  input: React.InputHTMLAttributes<HTMLInputElement>;
+  error?: string;
+}
+
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ style, label, input, error }, ref) => {
+    return (
+      <div className={style}>
+        {label && <label htmlFor={input.id}>{label}</label>}
+        <input ref={ref} {...input} />
+        {error && <p className="text-red-500 mt-2">{error}</p>}
+      </div>
+    );
+  }
+);
 
 export default Input;
