@@ -8,7 +8,7 @@ const privateKey = fs.readFileSync(path.join(path.resolve(), 'privateKey.key'));
 
 const isAdmin = async (req: Request, res: Response, next: NextFunction) => {
     try{
-        if (req.user.company != "iccan") throw { statusCode: 401, message: "Not authorized as Admin!" }
+        if (req.isAdmin.company !== "iccan") throw { statusCode: 401, message: "Not authorized as Admin!" }
         next();
     } catch (err: any) {
         if (!err.statusCode) err.statusCode = 500;

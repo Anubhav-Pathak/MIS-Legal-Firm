@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 
-import { changePage, dataActions, changeLimit } from "@/redux/slices/dataSlice";
+import {dataActions, fetchData} from "@/redux/slices/dataSlice";
 import Input from "./UI/Input";
 import Button from "./UI/Button";
 
@@ -9,6 +9,8 @@ import Button from "./UI/Button";
 const Pagination = () => {
   const dispatch = useAppDispatch();
   const token = localStorage.getItem("token") as string;
+  const isAdmin = useAppSelector((state) => state.dataReducer.isAdmin);
+  const client = JSON.parse(localStorage.getItem("client") as string);
 
   const {data, pages, limit} = useAppSelector((state) => state.dataReducer);
   const remainingData = data.remainingData;
@@ -27,15 +29,17 @@ const Pagination = () => {
 
   const submitHandler = (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(changeLimit(pages, limit, token));
+    dispatch(fetchData(pages, limit, token, isAdmin, client));
   };
 
   const previousPageHandler = () => {
-    dispatch(changePage(pages - 1, limit, token));
+    dispatch(dataActions.changePage(pages - 1));
+    dispatch(fetchData(pages - 1, limit, token, isAdmin, client));
   };
 
   const nextPageHandler = () => {
-    dispatch(changePage(pages + 1, limit, token));
+    dispatch(dataActions.changePage(pages + 1));
+    dispatch(fetchData(pages + 1, limit, token, isAdmin, client));
   };
 
   return (

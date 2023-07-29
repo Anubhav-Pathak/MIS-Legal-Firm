@@ -22,7 +22,7 @@ const CollapseHeader = ({client}) => {
 const CompanyCollapse = ({client}) => {
     const openHandler = () => {
         localStorage.setItem("client", JSON.stringify(client));
-        window.open(`/dashboard/${client.company}?admin=true`, '_blank');
+        window.open(`/dashboard/${client.company}?admin=true`);
     }
     return (
         <Collapse header={<CollapseHeader client={client}/>}>

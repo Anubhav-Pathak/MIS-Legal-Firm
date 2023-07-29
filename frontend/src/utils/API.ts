@@ -107,8 +107,7 @@ export async function createClient(clientData: ClientData, token: string) {
   Object.entries(clientData).forEach(([key, value]) => {
     if (key === "clientFile") {
       if (!value) return;
-      const blob = new Blob([value.buffer]);
-      formData.append(`clientFile`, blob, `clientFile`);
+      formData.append(key, value);
     } else if (value) formData.append(key, typeof value === "string" ? value : String(value));
   });
   try {
@@ -130,6 +129,43 @@ export async function createClient(clientData: ClientData, token: string) {
   }
 }
 
+export async function getCompanies(token: string) {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/companies`,{
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) throw new Error("Something went wrong");
+  const data = await response.json();
+  return data;
+}
+
+export async function updateFile(user:Object, clientFile: Blob, token:string){
+  const formData = new FormData();
+  console.log(clientFile, user, token);
+  formData.append("clientFile", clientFile);
+  formData.append("user", JSON.stringify(user));
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/update-file`, {
+      method: "POST",
+      body: formData,
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error: any) {
+    throw new Error("Error updating file" + error?.message);
+  }
+}
+
 export async function getTemplates(company: string) {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/pdf/templates?company=${company}`,
@@ -141,19 +177,6 @@ export async function getTemplates(company: string) {
     }
   );
   if (!response.ok) throw Error("Something Went Wrong");
-  const data = await response.json();
-  return data;
-}
-
-export async function getCompanies(token: string) {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/companies`,{
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`,
-    },
-  });
-  if (!response.ok) throw new Error("Something went wrong");
   const data = await response.json();
   return data;
 }

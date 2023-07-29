@@ -54,29 +54,5 @@ export const fetchData = (page: number, limit: number, token: string, admin?: bo
     }
 }
 
-export const changePage = (page: number, limit: number, token: string, admin?: boolean, user?: Object) => {
-    return async (dispatch: any) => {
-        dispatch(dataActions.changePage(page));
-        let response;
-        if (user && admin) response = await postRead(page, limit, token, user);
-        else response =  await postRead(page, limit, token);
-        if (!response.ok) throw new Error("Fetch Failed");
-        const data = await response.json();
-        dispatch(dataActions.changeData(data));
-    }
-}
-
-export const changeLimit = (page: number, limit: number, token: string, admin?: boolean, user?: Object) => {
-    return async (dispatch: any) => {
-        dispatch(dataActions.changeLimit(limit));
-        let response;
-        if (user && admin) response = await postRead(page, limit, token, user);
-        else response =  await postRead(page, limit, token);
-        if (!response.ok) throw new Error("Fetch Failed");
-        const data = await response.json();
-        dispatch(dataActions.changeData(data));
-    }
-}
-
 export const dataActions = dataSlice.actions;
 export default dataSlice.reducer;

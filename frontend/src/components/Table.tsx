@@ -21,6 +21,7 @@ const Body = ({body, headers}) => {
   const isAdmin = useAppSelector((state) => state.dataReducer.isAdmin);
   const onSelectHandler = (e: any) => {
     console.log(e.target.parentNode.parentNode.childNodes[0].value);
+    // Selection Logic Here
   }
   const onClickHandler = (e: any) => {
     const row = e.target.parentNode.childNodes[0].childNodes[0].value;
@@ -30,16 +31,16 @@ const Body = ({body, headers}) => {
   return (
     <tbody>
       {body.map((row:Array<string>, index:Key) => 
-        <tr key={index} className="hover cursor-pointer" onClick={onClickHandler}>
-          <th>
+        <tr key={index} className="hover cursor-pointer">
+          <th className="z-10">
             <input type="hidden" name="arbno" value={JSON.stringify(row)} />
             {isAdmin && 
             <label>
-              <input type="checkbox" className="checkbox" onClick={onSelectHandler}/>
+              <input type="checkbox" className="checkbox" onFocus={onSelectHandler}/>
             </label>
             }
           </th>
-          {headers.map((header:string, index:Key) => header in row ? <td key={index}>{row[header]}</td> : <td key={index}>-</td>)}
+          {headers.map((header:string, index:Key) => header in row ? <td onClick={onClickHandler} key={index}>{row[header]}</td> : <td onClick={onClickHandler} key={index}>-</td>)}
         </tr>
       )}
     </tbody>

@@ -1,6 +1,6 @@
 import path from "path";
 import { NextFunction, Request, Response } from "express";
-import fs from "fs";
+import fs, { PathLike } from "fs";
 import XLSX from "xlsx";
 import * as argon2 from "argon2";
 
@@ -83,6 +83,23 @@ export const getUsers = async (req: Request, res: Response, next: NextFunction) 
     });
     res.status(200).send({ clients });  
   } catch (err: any){
+    if (!err.statusCode) err.statusCode = 500;
+    next(err);
+  }
+};
+
+export const updateFile = async (req: Request, res: Response, next: NextFunction) => {
+  const user = JSON.parse(req.body.user) as UserInterface;
+  const clientFile = req.files?.clientFile as UploadedFile;
+  try {
+    if (clientFile) {
+      const clientFileName = `${user.company}.xlsx`;
+      const clientFilePath = path.join(xlsxBasePath, clientFileName);
+      await clientFile.mv(clientFilePath);
+      res.status(200).send({ message: "File updated successfully" });
+    }
+  } catch (err: any) {
+    console.error("Error:", err);
     if (!err.statusCode) err.statusCode = 500;
     next(err);
   }

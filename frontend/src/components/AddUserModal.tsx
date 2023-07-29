@@ -16,12 +16,13 @@ const AddUserModal = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [clientFile, setClientFile] = useState<File | null>(null);
+  const token = localStorage.getItem("token") as string;
 
   const submitHandler = async (event: React.FormEvent) => {
     event.preventDefault();
     setLoading(true);
     try{
-      const response = await createClient({company, username, password, clientFile});
+      const response = await createClient({company, username, password, clientFile}, token);
       if(!response) throw new Error("Something went wrong");
       else {
         dispatch(toastActions.showToast({message: "Client created successfully", type: "success"}));
@@ -31,7 +32,6 @@ const AddUserModal = () => {
       setPassword("");
       setClientFile(null);
     } catch(error: any) {
-      // For now Displayed Toast message is same for all errors will change it later
       dispatch(toastActions.showToast({message: error.message, type: "error"}));
     }
     finally {
