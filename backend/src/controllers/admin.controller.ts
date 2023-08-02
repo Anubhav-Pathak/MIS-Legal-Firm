@@ -1,29 +1,42 @@
 import path from "path";
 import { NextFunction, Request, Response } from "express";
 import fs, { PathLike } from "fs";
-import XLSX from "xlsx";
+import { HydratedDocument } from "mongoose";
 import * as argon2 from "argon2";
 
-import User, {UserInterface} from "../models/User";
-interface UploadedFile {
-  name: string;
-  mv: (path: string) => Promise<void>;
-}
+import Client from "../models/Client";
+import Admin from "../models/Admin";
+import { AdminInterface, ClientInterface, UploadedFile } from "../types/types";
 
 const xlsxBasePath = path.join("src", "data", "xlsx");
-const templatesBasePath = path.join("src", "data", "templates");
 
-export const postAddUser = async (req: Request, res: Response, next: NextFunction) => {
+export const postAddAdmin = async (req: Request, res: Response, next: NextFunction) => {
   const { company, username, password } = req.body;
-  const clientFile = req.files?.clientFile as UploadedFile;
-  const xlsxPath = path.join(xlsxBasePath);
   try {
-    const clientFileName = `${company}.xlsx`;
-    const clientFilePath = path.join(xlsxPath, clientFileName);
     let hashedPassword = await argon2.hash(password);
-    const user = await User.create({company,username,password: hashedPassword,clientFile: clientFilePath,pdfTemplates:[]});
+    const user = await Admin.create({company, username, password: hashedPassword, companies: []});
+    if (!user) throw Error('Admin not created');
+    res.status(200).send({ message: "Admin added successfully" });
+  } catch (err: any) {
+    if (!err.statusCode) err.statusCode = 500;
+    next(err);
+  }
+};
+
+export const postAddClient = async (req: Request, res: Response, next: NextFunction) => {
+  let { company, username, password } = req.body;
+  const clientFile = req.files?.clientFile as UploadedFile;
+  try {
+    company = company.replace(/\s/g, "-").toLowerCase();
+    const clientFileName = `${company}.xlsx`;
+    const clientFilePath = path.join(xlsxBasePath, clientFileName);
+    let hashedPassword = await argon2.hash(password);
+    const user = await Client.create({company, username, password: hashedPassword, clientFile: clientFilePath, pdfTemplates:[], createdBy: (req.user as AdminInterface)._id});
     if (!user) throw Error('User not created');
     await clientFile.mv(clientFilePath);
+    const admin = await Admin.findById((req.user as AdminInterface)._id) as HydratedDocument<AdminInterface>;
+    admin.companies.push(user._id as any);
+    await admin.save();
     res.status(200).send({ message: "User added successfully" });
   } catch (err: any) {
     if (!err.statusCode) err.statusCode = 500;
@@ -31,65 +44,46 @@ export const postAddUser = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
-export const deleteClient = async (req: Request, res: Response) => {
-  const { clientName } = req.params;
-  const xlsxPath = path.join(xlsxBasePath, clientName);
-  const templatesPath = path.join(templatesBasePath, clientName);
-
-  try {
-    if (fs.existsSync(xlsxPath)) {
-      fs.rmdirSync(xlsxPath, { recursive: true });
-    } else res.status(404).send({ error: "Client xlsx file not found" });
-
-    if (fs.existsSync(templatesPath)) {
-      fs.rmdirSync(templatesPath, { recursive: true });
-    } else res.status(404).send({ error: "Client templates file not found" });
-
-    res.status(200).send({ message: "Client deleted successfully" });
-  } catch (error) {
-    console.error("Error:", error);
-    res.status(500).send({ error: "Error deleting client" });
-  }
-};
-
-export const editClient = async (req: Request, res: Response) => {
-  const { clientName } = req.params;
-  const { newClientCredentials } = req.body;
-  try {
-    console.log({ clientName, newClientCredentials });
-    //todo: edit client credentials
-
-    res.status(200).send({ message: "Client edited successfully" });
-  } catch (error) {
-    console.error("Error:", error);
-    res.status(500).send({ error: "Error editing client" });
-  }
-};
-
-export const getUsers = async (req: Request, res: Response, next: NextFunction) => {
+export const getCompanies = async (req: Request, res: Response, next: NextFunction) => {
   try{
-    const users = await User.find().select("-password");
-    if (!users) throw Error("Users not found");
-    const clients: any = [];
-    users.map((user: any) => {
-      const stats = fs.statSync(user.clientFile);
-      const sizeInBytes = stats.size;
-      const fileCreatedOn = stats.birthtime;
-      clients.push({ 
-        ...user._doc,
-        sizeInBytes,
-        fileCreatedOn,
-      });
+    const clients : Array<ClientInterface> = [];
+    const user = req.user as AdminInterface;
+    const admin = await Admin.findById(user._id).populate('companies') as AdminInterface;
+    if (!admin) throw ({statusCode: 404, message: "No companies found"});
+    admin.companies.forEach((client: ClientInterface | any) => {
+      const worksheetPath = path.join(xlsxBasePath, client.company + ".xlsx");
+      const fileSizeInKB = fs.statSync(worksheetPath).size / 1024;
+      const fileUpdatedOn = fs.statSync(worksheetPath).mtime;
+      const updatedClient = {...client._doc, fileSizeInKB, fileUpdatedOn};
+      clients.push(updatedClient);
     });
-    res.status(200).send({ clients });  
+    res.status(200).send({ clients });
   } catch (err: any){
     if (!err.statusCode) err.statusCode = 500;
     next(err);
+  } 
+};
+
+export const deleteClient = async (req: Request, res: Response) => {
+  let clientId = req.params.clientId;
+  const client = await Client.findById(clientId) as ClientInterface;
+  const xlsxPath = path.join(xlsxBasePath, client.company + ".xlsx");
+  try {
+    await Client.findByIdAndDelete(clientId);
+    fs.unlinkSync(xlsxPath);
+    const admin = await Admin.findById((req.user as AdminInterface)._id) as HydratedDocument<AdminInterface>;
+    const updatedCompanies = admin.companies.filter((company) => company.toString() !== clientId);
+    admin.companies = updatedCompanies as any;
+    await admin.save();
+    res.status(200).send({ message: "Client deleted successfully" });
+  } catch (error: any) {
+    if (!error.statusCode) error.statusCode = 500;
+    res.status(error.statusCode).send({ error: error.message });
   }
 };
 
 export const updateFile = async (req: Request, res: Response, next: NextFunction) => {
-  const user = JSON.parse(req.body.user) as UserInterface;
+  const user = JSON.parse(req.body.user) as ClientInterface;
   const clientFile = req.files?.clientFile as UploadedFile;
   try {
     if (clientFile) {

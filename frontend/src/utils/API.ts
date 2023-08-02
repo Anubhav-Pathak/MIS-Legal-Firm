@@ -1,16 +1,20 @@
-import {ClientData} from "@/utils/Types";
+import { ClientInterface } from "./Types";
 
-export async function login(username: string, password: string) {
+// Authentication
+
+export async function login(username: string, password: string, isAdmin: boolean) {
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sign-in`,{
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ username, password, isAdmin }),
     }
   );
   return response;
 }
+
+// Read Excel 
 
 export async function postRead(pageNumber: Number, limit: Number, token: string, user?: Object, tab?: string ) {
   const response = await fetch(
@@ -29,6 +33,8 @@ export async function postRead(pageNumber: Number, limit: Number, token: string,
   );
   return response;
 }
+
+// Search
 
 export async function postSearch(
   search: string,
@@ -57,6 +63,8 @@ export async function postSearch(
   const data = await response.json();
   return data;
 }
+
+// Filter
 
 export async function getFilter(
   columns = {},
@@ -102,7 +110,9 @@ export async function getPDFFileNames() {
   return data;
 }
 
-export async function createClient(clientData: ClientData, token: string) {
+// Admin
+
+export async function createClient(clientData: ClientInterface, token: string) {
   const formData = new FormData();
   Object.entries(clientData).forEach(([key, value]) => {
     if (key === "clientFile") {
@@ -111,7 +121,7 @@ export async function createClient(clientData: ClientData, token: string) {
     } else if (value) formData.append(key, typeof value === "string" ? value : String(value));
   });
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/add-user`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/add-client`, {
       method: "POST",
       body: formData,
       headers: {
@@ -137,7 +147,7 @@ export async function getCompanies(token: string) {
       "Authorization": `Bearer ${token}`,
     },
   });
-  if (!response.ok) throw new Error("Something went wrong");
+  if (!response.ok) throw new Error(response.statusText);
   const data = await response.json();
   return data;
 }
@@ -181,13 +191,14 @@ export async function getTemplates(company: string) {
   return data;
 }
 
-export async function deleteClient(clientId: string) {
+export async function deleteClient(clientId: string, token: string) {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/admin/${clientId}`,
     {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
       },
     }
   );

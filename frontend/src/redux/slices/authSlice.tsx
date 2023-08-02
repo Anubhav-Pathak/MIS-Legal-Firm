@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 const initialState = {
   company: null,
   isAuthenticated: false,
+  token: "",
 };
 
 const authSlice = createSlice({
@@ -21,13 +22,16 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.company = null;
     },
+    setToken: (state, action) => {
+      state.token = action.payload;
+    }
   },
 });
-export const sendLogin = (username: string, password: string) => {
+export const sendLogin = (username: string, password: string, isAdmin: boolean) => {
   return async (dispatch: any) => {
     try {
-      const response = await login(username, password);
-      if (!response.ok) throw new Error("Login Failed");
+      const response = await login(username, password, isAdmin);
+      if (!response.ok) throw new Error("Invalid credentials");
       const data = await response.json();
       localStorage.setItem("token", data.token);
       dispatch(authActions.login(data.company));

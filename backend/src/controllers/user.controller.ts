@@ -1,33 +1,10 @@
-import * as argon2 from "argon2";
 import { NextFunction, Request, Response } from "express";
-import jwt from 'jsonwebtoken'
 import path from "path";
 import fs from "fs";
 import XLSX from "xlsx";
 
-import User from "../models/User";
-
-const privateKey = fs.readFileSync(path.join(path.resolve(), 'privateKey.key'));
 const DEFAULT_LIMIT = 15;
 const DEFAULT_PAGE = 1;
-
-export async function signIn(req: Request, res: Response, next: NextFunction) {
-    const { username, password }: {
-        username: string,
-        password: string,
-    } = req.body;
-    try {
-        const user = await User.findOne({ username });
-        if (!user) throw {statusCode: 401, message: 'Invalid Credentials'};
-        const isPasswordCorrect = await argon2.verify(user.password, password);
-        if (!isPasswordCorrect) throw {statusCode: 401, message: 'Invalid Credentials'}
-        const token = jwt.sign({user: user._id}, privateKey, { algorithm: 'RS256' });
-        return res.status(200).send({ message: 'User signed in', token, company: user.company});
-    } catch (err: any) {
-      if (!err.statusCode) err.statusCode = 500;
-      next(err);
-    }
-}
 
 export async function postRead(req: Request, res: Response, next: NextFunction) {
   try {

@@ -7,6 +7,7 @@ import FileUpload from "@/components/UI/FileUpload";
 import { createClient } from "@/utils/API";
 import Modal from "./UI/Modal";
 import { toastActions } from "@/redux/slices/uiSlice";
+import { ClientInterface } from "@/utils/Types";
 
 const AddUserModal = () => {
   const dispatch = useAppDispatch();
@@ -23,7 +24,6 @@ const AddUserModal = () => {
 
   const validateInputs = () => {
     let isValid = true;
-
     if (company.trim().length === 0) {
       setCompanyError("Company name is required.");
       isValid = false;
@@ -54,18 +54,17 @@ const AddUserModal = () => {
     if (!validateInputs()) {
       return;
     }
+    setCompany(company.replace(" ", "-").toLowerCase());
 
     if (!clientFile || !clientFile.name.toLowerCase().endsWith(".xlsx")) {
       setFileError("Please upload an XLSX file.");
       return;
-    } else {
-      setFileError("");
     }
 
     setLoading(true);
     try {
       const response = await createClient(
-        { company, username, password, clientFile },
+        { company, username, password, clientFile } as ClientInterface,
         token
       );
       if (!response) throw new Error("Something went wrong");

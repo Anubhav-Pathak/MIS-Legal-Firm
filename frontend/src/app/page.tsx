@@ -1,23 +1,21 @@
 "use client";
-import React, { ReactHTML, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 
 import Input from "@/components/UI/Input";
 import Button from "@/components/UI/Button";
 import Toast from "@/components/UI/Toast";
-import { authActions, sendLogin } from "@/redux/slices/authSlice";
+import { sendLogin } from "@/redux/slices/authSlice";
 
 export default function Home() {
   const dispatch = useDispatch();
   const router = useRouter();
-  const { isAuthenticated, company } = useSelector(
-    (state: any) => state.authReducer
-  );
+  const { isAuthenticated, company } = useSelector((state: any) => state.authReducer);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const changeUsernameHandler = (e: any) => {
     setUsername(e.target.value);
@@ -25,18 +23,18 @@ export default function Home() {
   const changePasswordHandler = (e: any) => {
     setPassword(e.target.value);
   };
+  const changeIsAdminHandler = (e: any) => {
+    setIsAdmin(e.target.checked);
+  };
 
   const submitHandler = (event: React.FormEvent) => {
     event.preventDefault();
-    dispatch(sendLogin(username, password));
+    dispatch(sendLogin(username, password, isAdmin));
   };
 
   useEffect(() => {
-    if (isAuthenticated && company === "iccan") {
-      router.push("/dashboard/admin");
-    } else if (isAuthenticated) {
-      router.push("/dashboard/" + company);
-    }
+    if(isAuthenticated && isAdmin) router.push(`admin/${company}`);
+    else if(isAuthenticated && !isAdmin) router.push(`/dashboard/${company}`);
   }, [isAuthenticated]);
 
   return (
@@ -68,13 +66,13 @@ export default function Home() {
                 className: "input block mt-2 w-full",
               }}
             />
-            <Button type="submit" styles="btn-primary">
-              {loading ? (
-                <span className="loading loading-spinner loading-xs"></span>
-              ) : (
-                "Sign in"
-              )}
-            </Button>
+            <div className="form-control">
+              <label className="cursor-pointer flex items-center gap-2">
+                <input type="checkbox" className="checkbox checkbox-primary" onClick={changeIsAdminHandler} />
+                <span className="text-black"> Login as Admin  </span>
+              </label>
+            </div>
+            <Button type="submit" styles="btn-primary">Sign in</Button>
           </form>
         </div>
       </div>

@@ -10,6 +10,8 @@ import userRouter from "./routes/userRoutes";
 import pdfRouter from "./routes/pdfRoutes";
 import adminRouter from "./routes/adminRoutes";
 
+import signIn from "./controllers/auth.controller";
+
 
 const app = express();
 dotenv.config();
@@ -32,9 +34,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/", (req: any, res: any) => {
-  res.render("index");
-});
+app.post("/api/sign-in", signIn);
 
 app.use("/api", userRouter);
 app.use("/api/pdf", pdfRouter);

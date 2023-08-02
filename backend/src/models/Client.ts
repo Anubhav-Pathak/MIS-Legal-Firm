@@ -1,16 +1,6 @@
-// mongoose Model for user
+import mongoose, { Path } from 'mongoose';
 
-import mongoose from 'mongoose';
-
-export interface UserInterface {
-    company: string,
-    username: string,
-    password: string,
-    clientFile?: string,
-    pdfTemplates?: string[],
-}
-
-const UserSchema = new mongoose.Schema({
+const ClientSchema = new mongoose.Schema({
     company: {
         type: String,
         required: true,
@@ -34,11 +24,16 @@ const UserSchema = new mongoose.Schema({
         required: false,
     },
     pdfTemplates: {
-        type: Array,
+        type: Array<Path>,
         required: false,
+    },
+    createdBy: {
+        type: mongoose.Types.ObjectId,
+        required: true,
+        ref: 'Admin'
     },
 }, { timestamps: true });
 
-const User = mongoose.model('User', UserSchema);
+const Client = mongoose.model('User', ClientSchema);
 
-export default User;
+export default Client;
