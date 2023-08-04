@@ -5,12 +5,14 @@ import { toastReducer } from "./slices/uiSlice";
 import authReducer from "./slices/authSlice";
 import dataReducer from "./slices/dataSlice";
 import rowReducer from "./slices/rowSlice";
+import filterReducer from "./slices/filterSlice";
 
 const reducer = combineReducers({
   authReducer,
   toastReducer,
   dataReducer,
-  rowReducer
+  rowReducer,
+  filterReducer
 });
 
 export const store = configureStore({reducer});

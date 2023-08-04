@@ -1,41 +1,35 @@
-"use client"
-import React, { useContext, useState } from "react";
+"use client";
+import React from "react";
+
+import { useAppDispatch } from "@/redux/hooks";
+
 import Image from "next/image";
 import Input from "./UI/Input";
 import Button from "./UI/Button";
-import DataContext from "@/contexts/DataContext";
+import { dataActions } from "@/redux/slices/dataSlice";
 
 const Search = () => {
-  const [searchValue, setSearchValue] = useState("");
-  const dataContext = useContext(DataContext);
+  const dispatch = useAppDispatch();
+  const searchRef = React.useRef<HTMLInputElement>(null);
 
   const submitHandler = (event: React.FormEvent) => {
     event.preventDefault();
-    dataContext.searchHandler(searchValue.trim());
-    setSearchValue("");
-  };
-
-  const changeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchValue(event.target.value);
+    dispatch(dataActions.search(searchRef.current?.value.trim() as string));
   };
 
   return (
-    <form onSubmit={submitHandler} className="flex">
+    <form onSubmit={submitHandler} className="flex border-primary border-2 rounded">
       <Input
-        style="md:w-96"
+        ref={searchRef}
         input={{
-          value: searchValue,
-          onChange: changeHandler,
           type: "text",
           placeholder: "Search...",
-          className:
-            "rounded-l-full focus:outline-none input w-full bg-white text-black",
+          className: "input focus:outline-none"
         }}
       />
       <Button
         type="submit"
-        styles="btn btn-primary rounded-r-full"
-        disabled={searchValue.trim() === ""}
+        styles="btn-primary rounded-none"
       >
         <Image src="/search.svg" width="30" height="30" alt="Search" />
       </Button>

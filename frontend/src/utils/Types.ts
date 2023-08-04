@@ -13,7 +13,9 @@ export interface ClientInterface {
 
 declare global {
     interface Window {
-        create_user: HTMLDialogElement
+        create_user: HTMLDialogElement,
+        add_filter: HTMLDialogElement,
+        upload_file: HTMLDialogElement,
     }
 }
 

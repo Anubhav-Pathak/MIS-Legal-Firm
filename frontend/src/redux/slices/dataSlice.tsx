@@ -1,13 +1,15 @@
-import {createSlice} from "@reduxjs/toolkit";
+import {PayloadAction, ThunkAction, createSlice} from "@reduxjs/toolkit";
 
 import { postRead } from "@/utils/API";
 import { toastActions } from "./uiSlice";
+import { useAppSelector } from "../hooks";
 
 const initialState = {
     data: {headers: [], results: [], remainingData: 0, totalPages: 0, tabs: []},
-    isAdmin: false,
     pages: 1,
     limit: 15,
+    currentTab: undefined,
+    search: undefined,
     isLoading: false,
     error: null,
 };
@@ -29,19 +31,20 @@ const dataSlice = createSlice({
             state.pages = 1;
             state.limit = action.payload;
         },
-        changeAdmin: (state, action) => {
-            state.isAdmin = action.payload;
+        changeTab: (state, action) => {
+            state.currentTab = action.payload;
+        },
+        search: (state, action) => {
+            state.search = action.payload;
         }
     }
 });
 
-export const fetchData = (page: number, limit: number, token: string, admin?: boolean, user?: Object) => {
+export const fetchData = (pages: number, limit: number, currentTab: string | undefined, search: string | undefined = undefined): ThunkAction<void, any, unknown, PayloadAction<any>> => {
     return async (dispatch: any) => {
         try{
             dispatch(dataActions.loading(true));
-            let response;
-            if (user && admin) response = await postRead(page, limit, token, user);
-            else response =  await postRead(page, limit, token);
+            const response =  await postRead(pages, limit, currentTab, search);
             if (!response.ok) throw new Error("Fetch Failed");
             const data = await response.json();
             dispatch(dataActions.changeData(data));

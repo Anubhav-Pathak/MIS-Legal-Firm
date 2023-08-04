@@ -1,3 +1,4 @@
+import { useAppSelector } from "@/redux/hooks";
 import { ClientInterface } from "./Types";
 
 // Authentication
@@ -16,77 +17,34 @@ export async function login(username: string, password: string, isAdmin: boolean
 
 // Read Excel 
 
-export async function postRead(pageNumber: Number, limit: Number, token: string, user?: Object, tab?: string ) {
+export async function postRead(pages: number, limit: number, currentTab: string | undefined = undefined, search: string | undefined = undefined ) {
+  const token = localStorage?.getItem("token");
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/read?page=${pageNumber}`,
-    {
+    `${process.env.NEXT_PUBLIC_API_URL}/api/read?page=${pages}`,{
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${token}`,
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
       },
       body: JSON.stringify({
         limit: limit,
-        user: user,
+        search: search,
+        tab: currentTab,
       }),
     }
   );
   return response;
 }
 
-// Search
-
-export async function postSearch(
-  search: string,
-  pageNumber: Number,
-  limit: Number,
-  company: string,
-  tab?: string
-) {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/read/filter`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        search: search,
-        page: pageNumber,
-        limit: limit,
-        company: company,
-        tab: tab,
-      }),
-    }
-  );
-  if (!response.ok) throw Error("Something Went Wrong");
-  const data = await response.json();
-  return data;
-}
-
 // Filter
 
-export async function getFilter(
-  columns = {},
-  pageNumber: Number,
-  limit: Number,
-  company: string,
-  tab?: string
-) {
-  const params = new URLSearchParams({
-    ...columns,
-    page: pageNumber.toString(),
-    limit: limit.toString(),
-    company: company,
-    tab: tab ? tab : "",
-  }).toString();
-
+export async function getFilter(filter:string, token:string) {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/read/filter?${params}`,
-    {
+    `${process.env.NEXT_PUBLIC_API_URL}/api/filter?filter=${filter}`,{
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
       },
     }
   );

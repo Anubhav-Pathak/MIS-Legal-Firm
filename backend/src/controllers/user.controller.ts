@@ -5,144 +5,76 @@ import XLSX from "xlsx";
 
 const DEFAULT_LIMIT = 15;
 const DEFAULT_PAGE = 1;
+const xlsxBasePath = path.join("src", "data", "xlsx");
 
 export async function postRead(req: Request, res: Response, next: NextFunction) {
   try {
     const user = req.user;
+    const { search, tab } = req.body;
+
     if (!user) throw Error("User not found");
 
-    const worksheetPath = path.join("src", "data", "xlsx", user.company + ".xlsx");
+    const worksheetPath = path.join(xlsxBasePath, user.company + ".xlsx");
 
     const workbook: XLSX.WorkBook = XLSX.readFile(worksheetPath);
-    if (!workbook) throw { status: 500, message: "Error reading file" };
+    if (!workbook) throw Error("Error reading file");
+    
+    const tabs = workbook.SheetNames.map((tab) => tab.trim());
+    const index = tabs.indexOf(tab);
 
-    const worksheet: XLSX.WorkSheet = workbook.Sheets[req.tab ?? workbook.SheetNames[0]];
-    if (!worksheet) throw { status: 404, message: "Company not found" };
+    const worksheet: XLSX.WorkSheet = workbook.Sheets[workbook.SheetNames[index] ?? workbook.SheetNames[0]];
+    if (!worksheet) throw { statusCode: 404, message: "Tab not found" };
 
     const page = req.query.page ? +req.query.page : DEFAULT_PAGE;
     const limit = req.body.limit ?? DEFAULT_LIMIT;
 
     const data: Record<string, number | string>[] = XLSX.utils.sheet_to_json(worksheet);
     const [headers] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-    if (page > Math.ceil(data.length / limit))
-      throw { status: 400, message: "Page must be less than total pages" };
-    else if (limit > data.length)
-      throw { status: 400, message: "Limit must be less than total data" };
+    let length = data.length;
 
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    const results: Record<string, number | string>[] = data.slice(startIndex, endIndex);
-    const remainingData = Math.max(data.length - endIndex, 0);
-    const totalPages = Math.ceil(data.length / limit);
-    res.status(200).send({headers, results, remainingData, totalPages, tabs: workbook.SheetNames });
+    let results = data.slice(startIndex, endIndex);
+
+    if (search) {
+      const searchResults = data.filter((row) => {
+        return Object.values(row).some((value) => {
+          return value.toString().toLowerCase().includes(search.toLowerCase());
+        });
+      });
+      results = searchResults.slice(startIndex, endIndex);
+      length = searchResults.length;
+    }
+
+    if (page > Math.ceil(data.length / limit))
+      throw { statusCode: 400, message: "Page must be less than total pages" };
+    else if (limit > data.length)
+      throw { statusCode: 400, message: "Limit must be less than total data" };
+
+    const remainingData = Math.max(length - endIndex, 0);
+    const totalPages = Math.ceil(length / limit);
+    res.status(200).send({headers, results, remainingData, totalPages, tabs: tabs });
   } catch (err: any) {
     if (!err.statusCode) err.statusCode = 500;
     next(err);
   }
 }
 
-export function upload(req: Request, res: Response) {
-  if (!req.files) {
-    return res.status(500).send({ message: "No file uploaded" });
-  } else {
-    const file: any = req.files.file;
-    file.mv(`/xlsx/data.xlsx`, (err: any) => {
-      if (err) {
-        console.log(err);
-        return res.status(500).send({ message: "Error uploading file" });
-      }
-    });
-    res.status(200).send({ message: "Uploaded file" });
-  }
-}
-
-export function getfilterBy(req: Request, res: Response): void {
+export function getFilter(req: Request, res: Response): void {
   try {
-    const filters: Record<string, string | string[]> = req.query;
-    const page: number = req.query.page ? +req.query.page : DEFAULT_PAGE;
-    const limit: number = req.query.limit ? +req.query.limit : DEFAULT_LIMIT;
-    const company: string = req.query.company;
-    const tab: string = req.query.tab;
-
-    const worksheetPath = path.join("src", "data", "xlsx", company, company + ".xlsx");
-
+    const user = req.user;
+    const tab = req.body.tab;
+    const { filter } = req.query;
+    console.log(filter);
+    const worksheetPath = path.join(xlsxBasePath, user?.company + ".xlsx");
     const workbook: XLSX.WorkBook = XLSX.readFile(worksheetPath);
     if (!workbook) throw { status: 500, message: "Error reading file" };
-
-    const worksheet: XLSX.WorkSheet =
-      workbook.Sheets[tab || workbook.SheetNames[0]];
+    const worksheet: XLSX.WorkSheet = workbook.Sheets[tab ?? workbook.SheetNames[0]];
     if (!worksheet) throw { status: 404, message: "Company or tab not found" };
-
-    const data: Record<string, number | string>[] =
-      XLSX.utils.sheet_to_json(worksheet);
-
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-    const filteredResults: Record<string, number | string>[] = data.filter(
-      (row) => {
-        // todo: handle empty filters
-        let valid = true;
-        for (const key in filters) {
-          if (filters[key] !== row[key]) {
-            valid = false;
-            break;
-          }
-        }
-        return valid;
-      }
-    );
-
-    const results = filteredResults.slice(startIndex, endIndex);
-    const remainingData = Math.max(results.length - endIndex, 0);
-    const totalPages = Math.ceil(results.length / limit);
-
-    res.status(200).send({ results, remainingData, totalPages });
-  } catch (e: any) {
-    res.status(500).send({ message: e.message });
-  }
-}
-
-export function postSearch(req: Request, res: Response): void {
-  try {
-    const { company, tab, search } = req.body;
-    const page: number = req.body.page ? +req.body.page : DEFAULT_PAGE;
-    const limit: number = req.body.limit ? +req.body.limit : DEFAULT_LIMIT;
-
-    const worksheetPath = path.join("src", "data", "xlsx", company, company + ".xlsx");
-
-    const workbook: XLSX.WorkBook = XLSX.readFile(worksheetPath);
-    if (!workbook) throw { status: 500, message: "Error reading file" };
-
-    const worksheet: XLSX.WorkSheet =
-      workbook.Sheets[tab || workbook.SheetNames[0]];
-    if (!worksheet) throw { status: 404, message: "Company or tab not found" };
-
-    const data: Record<string, number | string>[] =
-      XLSX.utils.sheet_to_json(worksheet);
-
-    const filteredResults: Record<string, number | string>[] = data.filter(
-      (row) => {
-        let valid = false;
-        for (const key in row) {
-          if (
-            row[key].toString().toLowerCase().includes(search.toLowerCase())
-          ) {
-            valid = true;
-            break;
-          }
-        }
-        return valid;
-      }
-    );
-
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-    const results = filteredResults.slice(startIndex, endIndex);
-    const remainingData = Math.max(filteredResults.length - endIndex, 0);
-    const totalPages = Math.ceil(filteredResults.length / limit);
-
-    res.status(200).send({ results, remainingData, totalPages });
+    const data: Record<string, number | string>[] = XLSX.utils.sheet_to_json(worksheet);
+    const column = filter as string;
+    const uniqueValues = [...new Set(data.map((row) => row[column]))];
+    res.status(200).send({ uniqueValues });
   } catch (e: any) {
     res.status(500).send({ message: e.message });
   }
