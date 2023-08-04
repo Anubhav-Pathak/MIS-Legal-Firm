@@ -8,14 +8,10 @@ import Button from "./UI/Button";
 
 const Pagination = () => {
   const dispatch = useAppDispatch();
-  const token = localStorage.getItem("token") as string;
-  const isAdmin = useAppSelector((state) => state.dataReducer.isAdmin);
-  const client = JSON.parse(localStorage.getItem("client") as string);
+  const {data, pages, limit, currentTab, search} = useAppSelector((state) => state.dataReducer);
 
-  const {data, pages, limit} = useAppSelector((state) => state.dataReducer);
   const remainingData = data.remainingData;
   const totalData = data.results.length + remainingData;
-
   const maxPage = Math.ceil(totalData / limit);
   const maxLimit = Math.min(totalData, 100);
 
@@ -29,17 +25,17 @@ const Pagination = () => {
 
   const submitHandler = (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(fetchData(pages, limit, token, isAdmin, client));
+    dispatch(fetchData(pages, limit, currentTab, search));
   };
 
   const previousPageHandler = () => {
     dispatch(dataActions.changePage(pages - 1));
-    dispatch(fetchData(pages - 1, limit, token, isAdmin, client));
+    dispatch(fetchData(pages - 1, limit, currentTab, search));
   };
 
   const nextPageHandler = () => {
     dispatch(dataActions.changePage(pages + 1));
-    dispatch(fetchData(pages + 1, limit, token, isAdmin, client));
+    dispatch(fetchData(pages + 1, limit, currentTab, search));
   };
 
   return (

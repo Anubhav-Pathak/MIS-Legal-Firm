@@ -2,7 +2,7 @@ import {PayloadAction, ThunkAction, createSlice} from "@reduxjs/toolkit";
 
 import { postRead } from "@/utils/API";
 import { toastActions } from "./uiSlice";
-import { useAppSelector } from "../hooks";
+import { filter } from "@/utils/Types";
 
 const initialState = {
     data: {headers: [], results: [], remainingData: 0, totalPages: 0, tabs: []},
@@ -10,6 +10,7 @@ const initialState = {
     limit: 15,
     currentTab: undefined,
     search: undefined,
+    filters: [] as filter[],
     isLoading: false,
     error: null,
 };
@@ -35,16 +36,28 @@ const dataSlice = createSlice({
             state.currentTab = action.payload;
         },
         search: (state, action) => {
+            state.pages = 1;
             state.search = action.payload;
+        },
+        addFilter: (state, action) => {
+            state.filters.push(action.payload);
+        },
+        removeFilter: (state, action) => {
+            state.filters = state.filters.filter((filter) => filter.label !== action.payload);
         }
     }
 });
 
-export const fetchData = (pages: number, limit: number, currentTab: string | undefined, search: string | undefined = undefined): ThunkAction<void, any, unknown, PayloadAction<any>> => {
+export const fetchData = (
+    pages: number, 
+    limit: number, 
+    currentTab: string | undefined, 
+    search: string | undefined = undefined, 
+    filters: filter[] | undefined = []): ThunkAction<void, any, unknown, PayloadAction<any>> => {
     return async (dispatch: any) => {
         try{
             dispatch(dataActions.loading(true));
-            const response =  await postRead(pages, limit, currentTab, search);
+            const response =  await postRead(pages, limit, currentTab, search, filters);
             if (!response.ok) throw new Error("Fetch Failed");
             const data = await response.json();
             dispatch(dataActions.changeData(data));

@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import Select from "./UI/Select";
 import Button from "./UI/Button";
 import { filterActions } from "@/redux/slices/filterSlice";
-import {dataActions } from "@/redux/slices/dataSlice";
+import {dataActions} from "@/redux/slices/dataSlice";
 
 const Filter = () => {
   const dispatch = useAppDispatch();
@@ -13,11 +13,16 @@ const Filter = () => {
   const filter = useAppSelector((state) => state.filterReducer.filter);
 
   const removeHandler = (label: string) => {
+    dispatch(dataActions.removeFilter(label));
     dispatch(filterActions.removeFilter(label));
   };
 
-  const changeTabHandler = (tab: string) => {
-    dispatch(dataActions.changeTab(tab));
+  const changeTabHandler = (tab: string, value: string) => {
+    dispatch(dataActions.changeTab(value));
+  }
+
+  const changeFilterHandler = (label: string, value: string) => {
+    dispatch(dataActions.addFilter({label, value}));
   }
 
   return (
@@ -29,11 +34,10 @@ const Filter = () => {
           return (
             <div className="indicator" key={index}>
               <button className="indicator-item indicator-top indicator-end badge badge-primary" onClick={() => removeHandler(filter.label)}>-</button>
-              <Select options={filter.options} />
+              <Select label={filter.label} options={filter.options} changeHandler={changeFilterHandler}/>
             </div>
           )
         })}
-
         <Button clickHandler={()=>window.add_filter.showModal()} styles="btn-outline btn-sm">+New Filter</Button>
       </div>
     </section>

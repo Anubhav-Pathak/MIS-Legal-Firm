@@ -18,7 +18,7 @@ const AddFilterModal = () => {
   return (
     <Modal id="add_filter" close={() => window.add_filter.close()}>
       <form onSubmit={submitHandler} className='flex flex-col gap-2'>
-        <Select options={headers} ref={selectRef}/>
+        <Select options={headers} ref={selectRef} changeHandler={function(){}}/>
         <Button type="submit" styles="btn-primary max-w-[100px]">
           {loading ? <span className="loading loading-spinner loading-xs"></span> : "Add"}
         </Button>

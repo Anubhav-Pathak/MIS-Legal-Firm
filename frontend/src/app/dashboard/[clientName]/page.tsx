@@ -18,13 +18,13 @@ import AddFilterModal from "@/components/AddFilterModal";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
-  const {data, isLoading, pages, limit, currentTab, search} = useAppSelector(state => state.dataReducer);
+  const {data, isLoading, pages, limit, currentTab, search, filters} = useAppSelector(state => state.dataReducer);
+  const token = localStorage?.getItem("token");
+  if(!token) window.location.href = "/";
 
   useEffect(() => {
-    const token = localStorage?.getItem("token");
-    if(!token) window.location.href = "/";
-    dispatch(fetchData(pages, limit, currentTab, search) as any);
-  }, [currentTab, search]);
+    dispatch(fetchData(pages, limit, currentTab, search, filters) as any);
+  }, [currentTab, search, filters]);
 
   return (
     <main className="p-4">

@@ -3,14 +3,14 @@ import path from "path";
 import fs from "fs";
 import XLSX from "xlsx";
 
-const DEFAULT_LIMIT = 15;
+const DEFAULT_LIMIT = 1;
 const DEFAULT_PAGE = 1;
 const xlsxBasePath = path.join("src", "data", "xlsx");
 
 export async function postRead(req: Request, res: Response, next: NextFunction) {
   try {
     const user = req.user;
-    const { search, tab } = req.body;
+    const { search, tab, filters } = req.body;
 
     if (!user) throw Error("User not found");
 
@@ -20,9 +20,9 @@ export async function postRead(req: Request, res: Response, next: NextFunction) 
     if (!workbook) throw Error("Error reading file");
     
     const tabs = workbook.SheetNames.map((tab) => tab.trim());
-    const index = tabs.indexOf(tab);
+    const index = tabs.indexOf(tab ?? tabs[0]);
 
-    const worksheet: XLSX.WorkSheet = workbook.Sheets[workbook.SheetNames[index] ?? workbook.SheetNames[0]];
+    const worksheet: XLSX.WorkSheet = workbook.Sheets[workbook.SheetNames[index]];
     if (!worksheet) throw { statusCode: 404, message: "Tab not found" };
 
     const page = req.query.page ? +req.query.page : DEFAULT_PAGE;
@@ -46,16 +46,20 @@ export async function postRead(req: Request, res: Response, next: NextFunction) 
       length = searchResults.length;
     }
 
-    if (page > Math.ceil(data.length / limit))
-      throw { statusCode: 400, message: "Page must be less than total pages" };
-    else if (limit > data.length)
-      throw { statusCode: 400, message: "Limit must be less than total data" };
-
+    if (filters.length > 0) {
+      const filterResults = data.filter((row) => {
+        return filters.every((filter: any) => {
+          return filter.value.includes(row[filter.label]);
+        });
+      });
+      results = filterResults.slice(startIndex, endIndex);
+      length = filterResults.length;
+    }
     const remainingData = Math.max(length - endIndex, 0);
     const totalPages = Math.ceil(length / limit);
     res.status(200).send({headers, results, remainingData, totalPages, tabs: tabs });
   } catch (err: any) {
-    if (!err.statusCode) err.statusCode = 500;
+    if (!err.statusCode) err.statusCode = 500; 
     next(err);
   }
 }

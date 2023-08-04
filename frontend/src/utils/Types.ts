@@ -22,3 +22,8 @@ declare global {
 export interface ClientProps {
     client: ClientInterface
 }
+
+export interface filter {
+    label: string;
+    options: string[];
+}

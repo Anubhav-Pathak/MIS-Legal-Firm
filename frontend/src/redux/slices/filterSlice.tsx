@@ -2,11 +2,7 @@ import {PayloadAction, ThunkAction, createSlice} from "@reduxjs/toolkit";
 
 import { getFilter, postRead } from "@/utils/API";
 import { toastActions } from "./uiSlice";
-
-interface filter {
-    label: string;
-    options: string[];
-}
+import { filter } from "@/utils/Types";
 
 const initialState = {
     filter: [] as filter[],

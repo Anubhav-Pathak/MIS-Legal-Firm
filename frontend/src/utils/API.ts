@@ -1,5 +1,5 @@
 import { useAppSelector } from "@/redux/hooks";
-import { ClientInterface } from "./Types";
+import { ClientInterface, filter } from "./Types";
 
 // Authentication
 
@@ -17,7 +17,7 @@ export async function login(username: string, password: string, isAdmin: boolean
 
 // Read Excel 
 
-export async function postRead(pages: number, limit: number, currentTab: string | undefined = undefined, search: string | undefined = undefined ) {
+export async function postRead(pages: number, limit: number, currentTab: string | undefined = undefined, search: string | undefined = undefined, filters: filter[] | undefined = [] ) {
   const token = localStorage?.getItem("token");
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/read?page=${pages}`,{
@@ -30,6 +30,7 @@ export async function postRead(pages: number, limit: number, currentTab: string 
         limit: limit,
         search: search,
         tab: currentTab,
+        filters: filters
       }),
     }
   );
