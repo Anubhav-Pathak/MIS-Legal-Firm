@@ -69,7 +69,6 @@ export function getFilter(req: Request, res: Response): void {
     const user = req.user;
     const tab = req.body.tab;
     const { filter } = req.query;
-    console.log(filter);
     const worksheetPath = path.join(xlsxBasePath, user?.company + ".xlsx");
     const workbook: XLSX.WorkBook = XLSX.readFile(worksheetPath);
     if (!workbook) throw { status: 500, message: "Error reading file" };
@@ -77,7 +76,7 @@ export function getFilter(req: Request, res: Response): void {
     if (!worksheet) throw { status: 404, message: "Company or tab not found" };
     const data: Record<string, number | string>[] = XLSX.utils.sheet_to_json(worksheet);
     const column = filter as string;
-    const uniqueValues = [...new Set(data.map((row) => row[column]))];
+    const uniqueValues = [...new Set(data.map((row) => row[column]))].sort();
     res.status(200).send({ uniqueValues });
   } catch (e: any) {
     res.status(500).send({ message: e.message });

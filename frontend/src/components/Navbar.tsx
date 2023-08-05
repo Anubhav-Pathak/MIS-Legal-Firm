@@ -13,8 +13,7 @@ const Navbar = () => {
   );
 
   const logoutHandler = () => {
-    console.log("logout");
-    dispatch(sendLogout());
+    dispatch(sendLogout() as any);
     router.push("/");
   };
   return (

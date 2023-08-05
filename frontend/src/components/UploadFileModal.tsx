@@ -14,14 +14,12 @@ const UploadFileModal = () => {
   const [loading, setLoading] = useState(false);
   const [clientFile, setClientFile] = useState<File | null>(null);
 
-  const token = localStorage.getItem("token") as string;
-  const client = JSON.parse(localStorage.getItem("client") as string);
-  
+  const token = localStorage.getItem("client") as string;
   const submitHandler = async (event: React.FormEvent) => {
     event.preventDefault();
     setLoading(true);
     try{
-      const response = await updateFile(client, clientFile as Blob, token);
+      const response = await updateFile(clientFile as Blob, token);
       if(!response) throw new Error("Something went wrong");
       else {
         dispatch(toastActions.showToast({message: "File Updated successfully", type: "success"}));

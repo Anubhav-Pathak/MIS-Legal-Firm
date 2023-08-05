@@ -40,7 +40,8 @@ const dataSlice = createSlice({
             state.search = action.payload;
         },
         addFilter: (state, action) => {
-            state.filters.push(action.payload);
+            let updatedFilter: filter[] = state.filters.filter((filter) => filter.label !== action.payload.label);
+            state.filters = [...updatedFilter, action.payload];
         },
         removeFilter: (state, action) => {
             state.filters = state.filters.filter((filter) => filter.label !== action.payload);

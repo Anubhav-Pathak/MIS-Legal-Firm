@@ -13,7 +13,7 @@ const AddFilterModal = () => {
   const selectRef = useRef<HTMLSelectElement>(null);
   const submitHandler = (event: React.FormEvent) => {
     event.preventDefault();
-    dispatch(addFilter(selectRef.current!.value, localStorage.getItem("token")!));
+    dispatch(addFilter(selectRef.current!.value));
   }
   return (
     <Modal id="add_filter" close={() => window.add_filter.close()}>

@@ -27,11 +27,11 @@ const filterSlice = createSlice({
     }
 });
 
-export const addFilter = (filter: string, token: string): ThunkAction<void, any, unknown, PayloadAction<any>> => {
+export const addFilter = (filter: string): ThunkAction<void, any, unknown, PayloadAction<any>> => {
     return async (dispatch) => {
         try {
             dispatch(filterActions.loading(true));
-            const data = await getFilter(filter, token);
+            const data = await getFilter(filter);
             dispatch(filterActions.addFilter({label: filter, options: data.uniqueValues}));
         } catch (error) {
             dispatch(toastActions.showToast({message: "Filter could not be added", type: "error"}));

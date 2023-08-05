@@ -25,6 +25,7 @@ const Toast = (props: any) => {
       setProgressValue(progress);
       timeout = setTimeout(() => {
         handleClose();
+        if(type === "success") window.location.reload();
       }, 5000);
       interval = setInterval(() => {
         progress -= 1;

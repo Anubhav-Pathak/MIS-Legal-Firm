@@ -20,7 +20,6 @@ const AdminPage = () => {
   const token = localStorage.getItem("token") as string;
   
   const dispatch = useAppDispatch();
-  dispatch(authActions.setToken(token));
   
   useEffect(() => {
     if(!token) window.location.href = "/";

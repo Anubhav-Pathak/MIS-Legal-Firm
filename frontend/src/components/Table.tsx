@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 
 import { rowActions } from "@/redux/slices/rowSlice";
 
-const Header = ({headers}) => {
+const Header = ({headers}: any) => {
   return (
     <thead className="bg-primary text-neutral">
       <tr>
@@ -15,10 +15,10 @@ const Header = ({headers}) => {
   );
 };
 
-const Body = ({body, headers}) => {
+const Body = ({body, headers}: any) => {
 
   const dispatch = useAppDispatch();
-  const isAdmin = useAppSelector((state) => state.dataReducer.isAdmin);
+  const isAdmin = useAppSelector((state) => state.authReducer.isAdmin);
   const onSelectHandler = (e: any) => {
     console.log(e.target.parentNode.parentNode.childNodes[0].value);
     // Selection Logic Here
@@ -47,7 +47,7 @@ const Body = ({body, headers}) => {
   )
 }
 
-const Table = ({data}) => {
+const Table = ({data}: any) => {
   return (
     <div className="overflow-x-auto">
       <table className="table table-zebra table-xs table-pin-cols">

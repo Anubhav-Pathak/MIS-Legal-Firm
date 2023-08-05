@@ -3,13 +3,25 @@ import { ClientInterface, filter } from "./Types";
 
 // Authentication
 
-export async function login(username: string, password: string, isAdmin: boolean) {
+export async function login(username: string, password: string, isAdmin: boolean, bypass: boolean | undefined) {
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sign-in`,{
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username, password, isAdmin }),
+      body: JSON.stringify({ username, password, isAdmin, bypass }),
+    }
+  );
+  return response;
+}
+
+export async function verify(token: string) {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/verify`,{
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
     }
   );
   return response;
@@ -18,7 +30,7 @@ export async function login(username: string, password: string, isAdmin: boolean
 // Read Excel 
 
 export async function postRead(pages: number, limit: number, currentTab: string | undefined = undefined, search: string | undefined = undefined, filters: filter[] | undefined = [] ) {
-  const token = localStorage?.getItem("token");
+  const token = localStorage.getItem("client") ?? localStorage?.getItem("token");
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/read?page=${pages}`,{
       method: "POST",
@@ -39,7 +51,8 @@ export async function postRead(pages: number, limit: number, currentTab: string 
 
 // Filter
 
-export async function getFilter(filter:string, token:string) {
+export async function getFilter(filter:string) {
+  const token = localStorage.getItem("client") ?? localStorage?.getItem("token");
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/filter?filter=${filter}`,{
       method: "GET",
@@ -111,11 +124,9 @@ export async function getCompanies(token: string) {
   return data;
 }
 
-export async function updateFile(user:Object, clientFile: Blob, token:string){
+export async function updateFile(clientFile: Blob, token:string){
   const formData = new FormData();
-  console.log(clientFile, user, token);
   formData.append("clientFile", clientFile);
-  formData.append("user", JSON.stringify(user));
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/update-file`, {
       method: "POST",

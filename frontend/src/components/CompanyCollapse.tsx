@@ -7,15 +7,14 @@ import { toastActions } from '@/redux/slices/uiSlice'
 import { useAppDispatch, useAppSelector } from '@/redux/hooks'
 
 import { ClientProps } from '@/utils/Types'
+import { sendLogin } from '@/redux/slices/authSlice'
 
 const CollapseHeader = ({client}: ClientProps) => {
     const dispatch = useAppDispatch();
-    const token = useAppSelector((state) => state.authReducer.token);
     const onDeleteHandler = async () => {
         window.confirm(`Are you sure you want to delete ${client.company}?`) && (
-            await deleteClient(client._id, token)
+            await deleteClient(client._id, localStorage.getItem("token") as string)
             .then((result) => {
-                // window.location.reload();
                 dispatch(toastActions.showToast({ message: result.message, type: "success" }));
             })
             .catch(error => {
@@ -37,9 +36,10 @@ const CollapseHeader = ({client}: ClientProps) => {
 }
 
 const CompanyCollapse = ({client}:ClientProps) => {
+    const dispatch = useAppDispatch();
     const openHandler = () => {
-        localStorage.setItem("client", JSON.stringify(client));
-        window.open(`/dashboard/${client.company}?admin=true`);
+        dispatch(sendLogin(client.username, client.password, false, true));
+        window.open(`/dashboard/${client.company}`);
     }
     return (
         <Collapse header={<CollapseHeader client={client}/>}>

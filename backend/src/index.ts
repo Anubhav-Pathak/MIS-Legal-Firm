@@ -10,7 +10,7 @@ import userRouter from "./routes/userRoutes";
 import pdfRouter from "./routes/pdfRoutes";
 import adminRouter from "./routes/adminRoutes";
 
-import signIn from "./controllers/auth.controller";
+import signIn, {verify} from "./controllers/auth.controller";
 
 
 const app = express();
@@ -35,6 +35,7 @@ app.use((req, res, next) => {
 });
 
 app.post("/api/sign-in", signIn);
+app.post("/api/verify", verify)
 
 app.use("/api", userRouter);
 app.use("/api/pdf", pdfRouter);

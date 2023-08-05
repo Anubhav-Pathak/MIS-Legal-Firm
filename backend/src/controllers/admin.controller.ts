@@ -83,7 +83,7 @@ export const deleteClient = async (req: Request, res: Response) => {
 };
 
 export const updateFile = async (req: Request, res: Response, next: NextFunction) => {
-  const user = JSON.parse(req.body.user) as ClientInterface;
+  const user = req.user as ClientInterface;
   const clientFile = req.files?.clientFile as UploadedFile;
   try {
     if (clientFile) {

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { postAddClient, deleteClient, getCompanies, updateFile, postAddAdmin } from "../controllers/admin.controller";
 import isAdmin from "../middlewares/isAdmin";
+import isClient from "../middlewares/isClient";
 
 const router: Router = Router();
 
@@ -9,7 +10,6 @@ router.post("/add-client", isAdmin, postAddClient);
 router.get("/companies", isAdmin, getCompanies);
 router.delete("/:clientId", isAdmin, deleteClient); 
 // router.patch("/:clientName",  isAdmin, editClient);
-router.post("/update-file",isAdmin, updateFile);
-
+router.post("/update-file",isClient, updateFile);
 
 export default router;
