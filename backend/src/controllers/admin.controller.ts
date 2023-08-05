@@ -1,8 +1,9 @@
 import path from "path";
 import { NextFunction, Request, Response } from "express";
-import fs, { PathLike } from "fs";
+import fs from "fs";
 import { HydratedDocument } from "mongoose";
 import * as argon2 from "argon2";
+import { ObjectId } from "mongodb";
 
 import Client from "../models/Client";
 import Admin from "../models/Admin";
@@ -35,7 +36,7 @@ export const postAddClient = async (req: Request, res: Response, next: NextFunct
     if (!user) throw Error('User not created');
     await clientFile.mv(clientFilePath);
     const admin = await Admin.findById((req.user as AdminInterface)._id) as HydratedDocument<AdminInterface>;
-    admin.companies.push(user._id as any);
+    admin.companies.push(user._id);
     await admin.save();
     res.status(200).send({ message: "User added successfully" });
   } catch (err: any) {
@@ -50,7 +51,7 @@ export const getCompanies = async (req: Request, res: Response, next: NextFuncti
     const user = req.user as AdminInterface;
     const admin = await Admin.findById(user._id).populate('companies') as AdminInterface;
     if (!admin) throw ({statusCode: 404, message: "No companies found"});
-    admin.companies.forEach((client: ClientInterface | any) => {
+    admin.companies.forEach((client) => {
       const worksheetPath = path.join(xlsxBasePath, client.company + ".xlsx");
       const fileSizeInKB = fs.statSync(worksheetPath).size / 1024;
       const fileUpdatedOn = fs.statSync(worksheetPath).mtime;
@@ -73,7 +74,7 @@ export const deleteClient = async (req: Request, res: Response) => {
     fs.unlinkSync(xlsxPath);
     const admin = await Admin.findById((req.user as AdminInterface)._id) as HydratedDocument<AdminInterface>;
     const updatedCompanies = admin.companies.filter((company) => company.toString() !== clientId);
-    admin.companies = updatedCompanies as any;
+    admin.companies = updatedCompanies;
     await admin.save();
     res.status(200).send({ message: "Client deleted successfully" });
   } catch (error: any) {

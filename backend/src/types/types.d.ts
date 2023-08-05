@@ -1,16 +1,16 @@
-import mongoose, { Path } from 'mongoose';
+import mongoose, { Mongoose, Path } from 'mongoose';
 import { JwtPayload } from 'jsonwebtoken';
 import { Express } from 'express';
 
-export interface AdminInterface {
+export interface AdminInterface extends Document<mongoose.Types.ObjectId>  {
     _id: mongoose.Types.ObjectId,
     company: string,
     username: string,
     password: string,
-    companies: mongoose.Types.ObjectId[] | ClientInterface[],
+    companies: (ClientInterface | ObjecId)[],
 }
 
-export interface ClientInterface {
+export interface ClientInterface extends Document<mongoose.Types.ObjectId> {
     _id: mongoose.Types.ObjectId,
     company: string,
     username: string,
@@ -19,7 +19,8 @@ export interface ClientInterface {
     fileSizeInKB?: number,
     fileUpdatedOn?: Date,
     pdfTemplates?: Path[],
-    createdBy: mongoose.Types.ObjectId
+    createdBy: mongoose.Types.ObjectId,
+    _doc: ClientInterface,
 }
 
 export interface myJWT extends JwtPayload {
