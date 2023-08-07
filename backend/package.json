@@ -4,7 +4,8 @@
   "description": "",
   "main": "app.ts",
   "scripts": {
-    "start": "tsc && node build/index.js",
+    "build": "tsc",
+    "start": "node ./build/index.js",
     "dev": "tsnd --files --respawn --transpile-only ./src/index.ts",
     "tailwind": "npx tailwindcss -i ./src/public/input.css -o ./src/public/output.css --watch"
   },
