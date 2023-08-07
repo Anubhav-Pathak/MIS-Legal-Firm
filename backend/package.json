@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "npm install && tsc",
     "start": "node ./build/index.js",
     "dev": "tsnd --files --respawn --transpile-only ./src/index.ts",
     "tailwind": "npx tailwindcss -i ./src/public/input.css -o ./src/public/output.css --watch"
@@ -27,6 +27,8 @@
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^3.7.107",
     "pug": "^3.0.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6",
     "uuid": "^9.0.0",
     "xlsx": "^0.18.5"
   },
