@@ -29,7 +29,7 @@ const authSlice = createSlice({
     }
   },
 });
-export const sendLogin = (username: string, password: string, isAdmin: boolean, bypass: boolean | undefined) => {
+export const sendLogin = (username: string, password: string, isAdmin: boolean, bypass: boolean | undefined): ThunkAction<void, any, unknown, PayloadAction<any>>  => {
   return async (dispatch: any) => {
     try {
       const response = await login(username, password, isAdmin, bypass);

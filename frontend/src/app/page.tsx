@@ -29,7 +29,7 @@ export default function Home() {
 
   const submitHandler = (event: React.FormEvent) => {
     event.preventDefault();
-    dispatch(sendLogin(username, password, isAdmin, false));
+    dispatch(sendLogin(username, password, isAdmin, false) as any);
   };
 
   useEffect(() => {

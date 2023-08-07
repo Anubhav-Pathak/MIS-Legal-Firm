@@ -30,7 +30,7 @@ const Body = ({body, headers}: any) => {
   }
   return (
     <tbody>
-      {body.map((row:Array<string>, index:Key) => 
+      {body.map((row:any, index:Key) => 
         <tr key={index} className="hover cursor-pointer">
           <th className="z-10">
             <input type="hidden" name="arbno" value={JSON.stringify(row)} />

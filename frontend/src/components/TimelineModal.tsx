@@ -1,5 +1,6 @@
-import React, { use, useEffect } from "react";
+import React from "react";
 import { useAppSelector } from "@/redux/hooks";
+import { Key } from "react";
 
 import Modal from "./UI/Modal";
 import Timeline from "./UI/Timeline";
@@ -22,7 +23,7 @@ const TimelineModal = () => {
       <h1 className="text-lg font-bold mb-4">
         Current Status: {modalRow["CURRENT STATUS"]}
       </h1>
-      {filteredRow.map((row, index) => {
+      {filteredRow.map((row: any, index: Key) => {
         return (
           <Timeline date={row.date} key={index}>
             <h1>{row.column}</h1>

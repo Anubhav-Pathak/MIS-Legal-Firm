@@ -14,7 +14,8 @@ const rowSlice = createSlice({
             window.timeline.showModal();
         },
         selectRows: (state, action) => {
-            state.rows.push(action.payload);
+            const selected = action.payload as never;
+            state.rows.push(selected);
         }
     }
 });

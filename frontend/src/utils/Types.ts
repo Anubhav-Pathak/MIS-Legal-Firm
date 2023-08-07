@@ -16,6 +16,7 @@ declare global {
         create_user: HTMLDialogElement,
         add_filter: HTMLDialogElement,
         upload_file: HTMLDialogElement,
+        timeline: HTMLDialogElement,
     }
 }
 
