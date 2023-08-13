@@ -8,6 +8,7 @@ import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
 import TimelineModal from "@/components/TimelineModal";
 import Toast from "@/components/UI/Toast";
+import Navbar from "@/components/Navbar";
 
 import { fetchData } from "@/redux/slices/dataSlice";
 import { useAppSelector } from "@/redux/hooks";
@@ -32,6 +33,8 @@ const Dashboard = () => {
   }, [currentTab, search, filters]);
 
   return (
+    <>
+    <Navbar />
     <main className="p-4">
       <TimelineModal />
       {isAdmin && <UploadFileModal />}
@@ -45,6 +48,7 @@ const Dashboard = () => {
       {isLoading ? <Loading /> : <Table data={data}/>}
       <Toast />
     </main>
+    </>
   );
 };
 

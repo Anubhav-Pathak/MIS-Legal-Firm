@@ -6,10 +6,10 @@ import { rowActions } from "@/redux/slices/rowSlice";
 
 const Header = ({headers}: any) => {
   return (
-    <thead className="bg-primary text-neutral">
+    <thead className="text-neutral">
       <tr>
         <th className="bg-primary"></th>
-        {headers.map((header: string, index: Key) => <td key={index}>{header}</td>)}
+        {headers.map((header: string, index: Key) => <td key={index} className="bg-primary">{header}</td>)}
       </tr>
     </thead> 
   );
@@ -40,7 +40,7 @@ const Body = ({body, headers}: any) => {
             </label>
             }
           </th>
-          {headers.map((header:string, index:Key) => header in row ? <td onClick={onClickHandler} key={index}>{row[header]}</td> : <td onClick={onClickHandler} key={index}>-</td>)}
+          {headers.map((header:string, index:Key) => header in row ? <td className="border border-black" onClick={onClickHandler} key={index}>{row[header]}</td> : <td className="border border-black" onClick={onClickHandler} key={index}>-</td>)}
         </tr>
       )}
     </tbody>
@@ -49,8 +49,8 @@ const Body = ({body, headers}: any) => {
 
 const Table = ({data}: any) => {
   return (
-    <div className="overflow-x-auto">
-      <table className="table table-zebra table-xs table-pin-cols">
+    <div className="overflow-x-auto h-96">
+      <table className="table table-zebra table-xs table-pin-rows table-pin-cols ">
         <Header headers={data.headers} />
         <Body body={data.results} headers={data.headers}/>
       </table>

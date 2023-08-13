@@ -10,8 +10,8 @@ import UploadFileModal from "@/components/UploadFileModal";
 import CompanyCollapse from "@/components/CompanyCollapse";
 import { ClientInterface } from "@/utils/Types";
 import { useAppDispatch } from "@/redux/hooks";
-import { authActions } from "@/redux/slices/authSlice";
 import { toastActions } from "@/redux/slices/uiSlice";
+import Navbar from "@/components/Navbar";
 
 const AdminPage = () => {
   const [clients, setClients] = useState([]);
@@ -38,6 +38,7 @@ const AdminPage = () => {
 
   return (
     <>
+      <Navbar />
       <AddUserModal />
       <UploadFileModal />
       <section className="flex flex-wrap items-center justify-between p-4">

@@ -41,8 +41,8 @@ const Pagination = () => {
   return (
     <section className="flex flex-wrap-reverse gap-4 justify-between place-items-end">
       <div>
-        <Button clickHandler={previousPageHandler} styles="btn-primary rounded-none w-24" disabled={pages === 1} > Previous </Button>
-        <Button clickHandler={nextPageHandler} styles="btn-primary rounded-none w-24" disabled={remainingData <= 0}> Next </Button>
+        <Button clickHandler={previousPageHandler} styles="btn-primary rounded-none text-sm w-48" disabled={pages === 1} > Previous Page </Button>
+        <Button clickHandler={nextPageHandler} styles="btn-primary rounded-none text-sm w-48" disabled={remainingData <= 0}> Next Page </Button>
       </div>
       <form onSubmit={submitHandler} className="flex items-start mb-8 gap-4 justify-center flex-col sm:flex-row" >
         <Input
