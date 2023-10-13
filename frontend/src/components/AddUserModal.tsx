@@ -20,13 +20,15 @@ const AddUserModal = () => {
   const [usernameError, setUsernameError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [fileError, setFileError] = useState("");
+  const [token, setToken] = useState("");
 
-  let token = "";
   useEffect(() => {
     if (typeof window !== "undefined" && window.localStorage) {
-      token = localStorage.getItem("token") as string;
+      const token = localStorage.getItem("token") as string;
+      setToken(token);
     }
   }, []);
+  
   const validateInputs = () => {
     let isValid = true;
     if (company.trim().length === 0) {
