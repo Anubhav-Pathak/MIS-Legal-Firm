@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useAppDispatch } from "@/redux/hooks";
 
@@ -20,8 +20,13 @@ const AddUserModal = () => {
   const [usernameError, setUsernameError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [fileError, setFileError] = useState("");
-  const token = localStorage.getItem("token") as string;
 
+  let token = "";
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.localStorage) {
+      token = localStorage.getItem("token") as string;
+    }
+  }, []);
   const validateInputs = () => {
     let isValid = true;
     if (company.trim().length === 0) {
@@ -151,9 +156,9 @@ const AddUserModal = () => {
           <FileUpload
             label="Client Excel File"
             onChange={handleClientFileChange}
-            acceptedFormats=".xlsx" 
+            acceptedFormats=".xlsx"
             required
-            error={fileError} 
+            error={fileError}
           />
         </div>
         <button
