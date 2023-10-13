@@ -17,6 +17,9 @@ async function signIn(req: Request, res: Response, next: NextFunction) {
         isAdmin: boolean,
         bypass: boolean | undefined
     } = req.body;
+
+    console.log(req.body);
+
     try {
         const user : AdminInterface | ClientInterface | null =  isAdmin ? await Admin.findOne({ username }) : await Client.findOne({ username });
         if (!user) throw {statusCode: 401, message: 'Invalid Credentials'};

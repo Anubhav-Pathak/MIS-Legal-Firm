@@ -24,7 +24,6 @@ app.use(cors());
 app.set("view engine", "pug");
 app.set("views", "src/views");
 app.use(express.json());
-app.use(fileUpload());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(path.resolve(), "data")));
 app.use(express.static(path.join(path.resolve(), "public")));

@@ -29,6 +29,7 @@ export interface myJWT extends JwtPayload {
 
 export interface myRequest extends Request {
     user: AdminInterface | ClientInterface | null,
+    clientFile?: UploadedFile,
 }
 
 declare global {
