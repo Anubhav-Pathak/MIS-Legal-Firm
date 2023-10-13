@@ -46,6 +46,21 @@ export const readMetaData = async (fileName: string): Promise<any> => {
     });
 };
 
+export const deleteFile = async (fileName: string): Promise<any> => {
+    const params = {
+        Bucket: bucketName,
+        Key: fileName,
+    };
+    return new Promise((resolve, reject) => {
+        s3.deleteObject(params, function (err, data) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(data);
+            }
+        });
+    });
+};
 
 export const readExcelFile = async (fileName: string): Promise<any> => {
     const params: any = {

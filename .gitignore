@@ -1,5 +1,4 @@
-/files
 /node_modules
 */build/
+/files
 */.env*
-```

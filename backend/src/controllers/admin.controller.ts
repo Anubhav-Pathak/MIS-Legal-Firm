@@ -7,7 +7,7 @@ import * as argon2 from "argon2";
 import Client from "../models/Client";
 import Admin from "../models/Admin";
 import { AdminInterface, ClientInterface, UploadedFile } from "../types/types";
-import { readMetaData, uploadFile } from "../utils/s3";
+import { deleteFile, readMetaData, uploadFile } from "../utils/s3";
 
 export const postAddAdmin = async (req: Request, res: Response, next: NextFunction) => {
   const { company, username, password } = req.body;
@@ -53,8 +53,7 @@ export const getCompanies = async (req: Request, res: Response, next: NextFuncti
     const admin = await Admin.findById(user._id).populate('companies') as AdminInterface;
     if (!admin) throw ({statusCode: 404, message: "No companies found"});
     admin.companies.forEach((client) => {
-      console.log(client.clientFile)
-      readMetaData(client.clientFile).then((data) => {
+      readMetaData('xlsx/'+client.clientFile).then((data) => {
         const fileSizeInKB = data.ContentLength / 1024;
         const fileUpdatedOn = data.LastModified;
         const updatedClient = {...client._doc, fileSizeInKB, fileUpdatedOn};
@@ -64,7 +63,6 @@ export const getCompanies = async (req: Request, res: Response, next: NextFuncti
         }
       })
     });
-    res.status(200).send({ clients });
   } catch (err: any){
     if (!err.statusCode) err.statusCode = 500;
     next(err);
@@ -74,10 +72,9 @@ export const getCompanies = async (req: Request, res: Response, next: NextFuncti
 export const deleteClient = async (req: Request, res: Response) => {
   let clientId = req.params.clientId;
   const client = await Client.findById(clientId) as ClientInterface;
-  const xlsxPath = path.join(xlsxBasePath, client.company + ".xlsx");
   try {
     await Client.findByIdAndDelete(clientId);
-    fs.unlinkSync(xlsxPath);
+    deleteFile('xlsx/'+client.clientFile);
     const admin = await Admin.findById((req.user as AdminInterface)._id) as HydratedDocument<AdminInterface>;
     const updatedCompanies = admin.companies.filter((company) => company.toString() !== clientId);
     admin.companies = updatedCompanies;
@@ -95,8 +92,8 @@ export const updateFile = async (req: Request, res: Response, next: NextFunction
   try {
     if (clientFile) {
       const clientFileName = `${user.company}.xlsx`;
-      const clientFilePath = path.join(xlsxBasePath, clientFileName);
-      await clientFile.mv(clientFilePath);
+      const data = await uploadFile('xlsx', clientFileName, clientFile);
+      if (!data) throw Error('File not uploaded');
       res.status(200).send({ message: "File updated successfully" });
     }
   } catch (err: any) {
