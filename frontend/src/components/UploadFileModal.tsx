@@ -12,11 +12,12 @@ const UploadFileModal = () => {
   const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(false);
   const [clientFile, setClientFile] = useState<File | null>(null);
+  const [token, setToken] = useState("");
 
-  let token = "";
   useEffect(() => {
     if (typeof window !== "undefined" && window.localStorage) {
-      token = localStorage.getItem("token") as string;
+      const token = localStorage.getItem("token") as string;
+      setToken(token);
     }
   }, []);
   const submitHandler = async (event: React.FormEvent) => {
