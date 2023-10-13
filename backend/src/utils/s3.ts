@@ -79,10 +79,7 @@ export const readExcelFile = async (fileName: string): Promise<any> => {
         file.on('end', function () {
             const buffer = Buffer.concat(buffers);
             const workbook = XLSX.read(buffer, { type: 'buffer' });
-            const workSheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[workSheetName];
-            const data = XLSX.utils.sheet_to_json(worksheet, { defval: ''});
-            resolve(data);
+            resolve(workbook);
         });
     
         file.on('error', (err) => {

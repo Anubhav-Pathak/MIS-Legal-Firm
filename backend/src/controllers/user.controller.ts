@@ -3,9 +3,10 @@ import path from "path";
 import fs from "fs";
 import XLSX from "xlsx";
 
+import {readExcelFile} from "../utils/s3";
+
 const DEFAULT_LIMIT = 1;
 const DEFAULT_PAGE = 1;
-const xlsxBasePath = path.join("src", "data", "xlsx");
 
 export async function postRead(req: Request, res: Response, next: NextFunction) {
   try {
@@ -14,12 +15,10 @@ export async function postRead(req: Request, res: Response, next: NextFunction) 
 
     if (!user) throw Error("User not found");
 
-    const worksheetPath = path.join(xlsxBasePath, user.company + ".xlsx");
-
-    const workbook: XLSX.WorkBook = XLSX.readFile(worksheetPath);
+    const workbook = await readExcelFile("xlsx/"+user.company + ".xlsx");
     if (!workbook) throw Error("Error reading file");
     
-    const tabs = workbook.SheetNames.map((tab) => tab.trim());
+    const tabs = workbook.SheetNames.map((tab: string) => tab.trim());
     const index = tabs.indexOf(tab ?? tabs[0]);
 
     const worksheet: XLSX.WorkSheet = workbook.Sheets[workbook.SheetNames[index]];
@@ -64,13 +63,13 @@ export async function postRead(req: Request, res: Response, next: NextFunction) 
   }
 }
 
-export function getFilter(req: Request, res: Response): void {
+export async function getFilter(req: Request, res: Response): Promise<void> {
   try {
     const user = req.user;
     const tab = req.body.tab;
     const { filter } = req.query;
-    const worksheetPath = path.join(xlsxBasePath, user?.company + ".xlsx");
-    const workbook: XLSX.WorkBook = XLSX.readFile(worksheetPath);
+    const workbook = await readExcelFile("xlsx/"+user?.company + ".xlsx");
+    if (!workbook) throw Error("Error reading file");
     if (!workbook) throw { status: 500, message: "Error reading file" };
     const worksheet: XLSX.WorkSheet = workbook.Sheets[tab ?? workbook.SheetNames[0]];
     if (!worksheet) throw { status: 404, message: "Company or tab not found" };

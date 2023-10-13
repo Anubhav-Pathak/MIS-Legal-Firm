@@ -11,6 +11,6 @@ router.post("/add-client", isAdmin, upload.single('clientFile'), postAddClient);
 router.get("/companies", isAdmin, getCompanies);
 router.delete("/:clientId", isAdmin, deleteClient); 
 // router.patch("/:clientName",  isAdmin, editClient);
-router.post("/update-file", isClient, updateFile);
+router.post("/update-file", isClient, upload.single('clientFile'), updateFile);
 
 export default router;
