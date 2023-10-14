@@ -13,6 +13,7 @@ const s3 = new AWS.S3({});
 const bucketName = process.env.AWS_BUCKET_NAME as string;
 
 export const uploadFile = async (folder: string, fileName: string, file: any): Promise<any> => {
+    console.log(fileName);
     const params: AWS.S3.PutObjectRequest = {
         Bucket: bucketName,
         Key: `${folder}/`+fileName,

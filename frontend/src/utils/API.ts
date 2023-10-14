@@ -124,7 +124,7 @@ export async function getCompanies(token: string) {
   return data;
 }
 
-export async function updateFile(clientFile: Blob, token:string){
+export async function updateFile(clientFile: Blob, token:string, company?: string){
   const formData = new FormData();
   formData.append("clientFile", clientFile);
   try {

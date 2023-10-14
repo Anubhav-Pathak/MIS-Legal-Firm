@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 import cors from "cors";
 import mongoose from "mongoose";
 import path from "path";
-import fileUpload from "express-fileupload";
 
 import userRouter from "./routes/userRoutes";
 import pdfRouter from "./routes/pdfRoutes";

@@ -2,7 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 
-import { useAppDispatch } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { toastActions } from "@/redux/slices/uiSlice";
 import Modal from "./UI/Modal";
 import FileUpload from "./UI/FileUpload";
@@ -13,10 +13,11 @@ const UploadFileModal = () => {
   const [loading, setLoading] = useState(false);
   const [clientFile, setClientFile] = useState<File | null>(null);
   const [token, setToken] = useState("");
+  const isAdmin = useAppSelector(state => state.authReducer.isAdmin);
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.localStorage) {
-      const token = localStorage.getItem("token") as string;
+      const token = !isAdmin ? localStorage.getItem("token") as string : localStorage.getItem("client") as string;
       setToken(token);
     }
   }, []);

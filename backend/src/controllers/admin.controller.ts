@@ -88,11 +88,10 @@ export const deleteClient = async (req: Request, res: Response) => {
 
 export const updateFile = async (req: Request, res: Response, next: NextFunction) => {
   const user = req.user as ClientInterface;
-  const clientFile = req.files?.clientFile as UploadedFile;
   try {
-    if (clientFile) {
+    if (req.file) {
       const clientFileName = `${user.company}.xlsx`;
-      const data = await uploadFile('xlsx', clientFileName, clientFile);
+      const data = await uploadFile('xlsx', clientFileName, req.file);
       if (!data) throw Error('File not uploaded');
       res.status(200).send({ message: "File updated successfully" });
     }

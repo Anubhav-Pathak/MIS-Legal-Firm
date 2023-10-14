@@ -16,17 +16,13 @@ import Navbar from "@/components/Navbar";
 const AdminPage = () => {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState("");
 
+  let token: string;
+  token = localStorage.getItem("token") as string;
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (typeof window !== "undefined" && window.localStorage) {
-      const token = localStorage.getItem("token") as string;
-      setToken(token);
       if (!token) window.location.href = "/";
-    }
-
     (async () => {
       try {
         setLoading(true);

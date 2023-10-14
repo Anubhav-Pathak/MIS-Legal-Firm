@@ -23,13 +23,13 @@ const Dashboard = () => {
   const {data, isLoading, pages, limit, currentTab, search, filters} = useAppSelector(state => state.dataReducer);
   const isAdmin = useAppSelector(state => state.authReducer.isAdmin);
 
-  const token = localStorage?.getItem("token");
+  const token = localStorage.getItem("token") as string;
+
   if(!token) window.location.href = "/";
   dispatch(verifyToken(token as string) as any)
 
   useEffect(() => {
     dispatch(fetchData(pages, limit, currentTab, search, filters) as any);
-    console.log(filters);
   }, [currentTab, search, filters]);
 
   return (
