@@ -72,7 +72,10 @@ export default function Home() {
                 <span className="text-black"> Login as Admin  </span>
               </label>
             </div>
-            <Button type="submit" styles="btn-primary">Sign in</Button>
+            <div className="flex justify-between items-end">
+              <Button type="submit" styles="btn-primary">Sign in</Button>
+              <a href="#" className="">Forgot your Password ?</a>
+            </div>  
           </form>
         </div>
       </div>

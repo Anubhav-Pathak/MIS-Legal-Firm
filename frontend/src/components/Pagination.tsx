@@ -13,7 +13,7 @@ const Pagination = () => {
   const remainingData = data.remainingData;
   const totalData = data.results.length + remainingData;
   const maxPage = Math.ceil(totalData / limit);
-  const maxLimit = Math.min(totalData, 200);
+  const maxLimit = 200;
 
   const limitChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     dispatch(dataActions.changeLimit(+e.target.value));
