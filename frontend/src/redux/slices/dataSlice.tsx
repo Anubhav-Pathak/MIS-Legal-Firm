@@ -7,7 +7,7 @@ import { filter } from "@/utils/Types";
 const initialState = {
     data: {headers: [], results: [], remainingData: 0, totalPages: 0, tabs: []},
     pages: 1,
-    limit: 15,
+    limit: 100,
     currentTab: undefined,
     search: undefined,
     filters: [] as filter[],

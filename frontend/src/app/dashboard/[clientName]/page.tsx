@@ -46,6 +46,7 @@ const Dashboard = () => {
       <Filter />
       <Pagination />
       {isLoading ? <Loading /> : <Table data={data}/>}
+      {/* <p className="mt-12 text-center">Page {pages} of {Math.ceil(data.results.length + data.remainingData / limit)} </p> */}
       <Toast />
     </main>
     </>

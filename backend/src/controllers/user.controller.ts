@@ -8,6 +8,23 @@ import {readExcelFile} from "../utils/s3";
 const DEFAULT_LIMIT = 1;
 const DEFAULT_PAGE = 1;
 
+function searchInExcel(workbook: XLSX.WorkBook, search: string) {
+  const results = [] as Record<string, number | string>[];
+
+  for (const sheetName of workbook.SheetNames) {
+    const worksheet = workbook.Sheets[sheetName];
+    const data: Record<string, number | string>[] = XLSX.utils.sheet_to_json(worksheet);
+    const searchResults = data.filter((row) => {
+      return Object.values(row).some((value) => {
+        return value.toString().toLowerCase().includes(search.toLowerCase());
+      });
+    });
+    results.push(...searchResults);
+  }
+  return results;
+}
+
+
 export async function postRead(req: Request, res: Response, next: NextFunction) {
   try {
     const user = req.user;
@@ -36,11 +53,7 @@ export async function postRead(req: Request, res: Response, next: NextFunction) 
     let results = data.slice(startIndex, endIndex);
 
     if (search) {
-      const searchResults = data.filter((row) => {
-        return Object.values(row).some((value) => {
-          return value.toString().toLowerCase().includes(search.toLowerCase());
-        });
-      });
+      const searchResults = searchInExcel(workbook, search);
       results = searchResults.slice(startIndex, endIndex);
       length = searchResults.length;
     }

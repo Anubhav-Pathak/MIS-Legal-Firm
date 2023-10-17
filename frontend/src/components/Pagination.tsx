@@ -13,7 +13,7 @@ const Pagination = () => {
   const remainingData = data.remainingData;
   const totalData = data.results.length + remainingData;
   const maxPage = Math.ceil(totalData / limit);
-  const maxLimit = Math.min(totalData, 100);
+  const maxLimit = Math.min(totalData, 200);
 
   const limitChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     dispatch(dataActions.changeLimit(+e.target.value));
@@ -57,7 +57,7 @@ const Pagination = () => {
           }}
         />
         <Input
-          label="Limit - "
+          label="Rows / Page - "
           input={{
             type: "number",
             min: 1,
