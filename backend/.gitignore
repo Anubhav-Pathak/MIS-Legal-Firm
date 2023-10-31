@@ -1,4 +1,5 @@
 /node_modules
+/build
 /*.key
 /*.env
 package-lock.json
