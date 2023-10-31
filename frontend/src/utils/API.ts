@@ -1,7 +1,30 @@
-import { useAppSelector } from "@/redux/hooks";
 import { ClientInterface, filter } from "./Types";
 
 // Authentication
+
+export async function getOTP(username: string | undefined, phone: string | undefined) {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/otp`,{
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, phone }),
+    }
+  );
+  return response;
+}
+
+export async function resetPassword(code: string, password: string, username: string | null, email: string | null) {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reset-password`,{
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ code, password, username, email }),
+    }
+  );
+  return response;
+}
 
 export async function login(username: string, password: string, isAdmin: boolean, bypass: boolean | undefined) {
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sign-in`,{

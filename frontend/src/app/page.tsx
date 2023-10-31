@@ -16,6 +16,7 @@ export default function Home() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const changeUsernameHandler = (e: any) => {
     setUsername(e.target.value);
@@ -27,9 +28,11 @@ export default function Home() {
     setIsAdmin(e.target.checked);
   };
 
-  const submitHandler = (event: React.FormEvent) => {
+  const submitHandler = async (event: React.FormEvent) => {
     event.preventDefault();
-    dispatch(sendLogin(username, password, isAdmin, false) as any);
+    setLoading(true);
+    await dispatch(sendLogin(username, password, isAdmin, false) as any);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -73,8 +76,8 @@ export default function Home() {
               </label>
             </div>
             <div className="flex justify-between items-end">
-              <Button type="submit" styles="btn-primary">Sign in</Button>
-              <a href="#" className="">Forgot your Password ?</a>
+              <Button type="submit" styles="btn-primary">{ loading ? <span className="loading loading-spinner loading-xs"></span> : "Sign In" }</Button>  
+              <a href="/forgot" className="">Forgot your Password ?</a>
             </div>  
           </form>
         </div>
