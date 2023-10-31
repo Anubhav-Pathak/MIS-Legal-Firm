@@ -8,13 +8,6 @@ const authToken = process.env.TWILIO_AUTH_TOKEN;
 const phoneNumber = process.env.TWILIO_PHONE_NO;
 const verifyID = process.env.TWILIO_VERIFY_ID;
 
-console.log(
-    accountSid,
-    authToken,
-    phoneNumber,
-    verifyID
-);
-
 const client = new Twilio(accountSid || "", authToken || "")
 
 export const generateOTP = async (phoneNumber: string): Promise<void> => {

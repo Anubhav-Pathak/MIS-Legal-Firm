@@ -12,8 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyOtp = exports.generateOtp = exports.getFilter = exports.postRead = void 0;
-const twilitoHandller_1 = require("../utils/twilitoHandller");
+exports.getFilter = exports.postRead = void 0;
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const xlsx_1 = __importDefault(require("xlsx"));
@@ -109,34 +108,6 @@ function getFilter(req, res) {
     });
 }
 exports.getFilter = getFilter;
-function generateOtp(req, res) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const { phoneNumber } = req.body;
-            yield (0, twilitoHandller_1.generateOTP)(phoneNumber);
-            res.status(200).send({ message: "OTP sent" });
-        }
-        catch (e) {
-            res.status(500).send({ message: e.message });
-        }
-    });
-}
-exports.generateOtp = generateOtp;
-function verifyOtp(req, res) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const { phoneNumber, code } = req.body;
-            const verified = yield (0, twilitoHandller_1.verifyOTP)(phoneNumber, code);
-            if (!verified)
-                throw Error("Invalid OTP");
-            res.status(200).send({ message: "OTP verified" });
-        }
-        catch (e) {
-            res.status(500).send({ message: e.message });
-        }
-    });
-}
-exports.verifyOtp = verifyOtp;
 const getTemplates = (directoryPath, directories) => {
     try {
         const templates = [];

@@ -35,7 +35,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateFile = exports.deleteClient = exports.getCompanies = exports.postAddClient = exports.postAddAdmin = void 0;
+exports.verifyOtp = exports.generateOtp = exports.updateFile = exports.deleteClient = exports.getCompanies = exports.postAddClient = exports.postAddAdmin = void 0;
+const twilitoHandller_1 = require("../utils/twilitoHandller");
 const argon2 = __importStar(require("argon2"));
 const Client_1 = __importDefault(require("../models/Client"));
 const Admin_1 = __importDefault(require("../models/Admin"));
@@ -144,3 +145,47 @@ const updateFile = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.updateFile = updateFile;
+function generateOtp(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            console.log("Generating OTP");
+            const { phoneNumber } = req.body;
+            const client = yield Client_1.default.find({ phoneNumber });
+            if (!client) {
+                res.status(404).send({ message: "User not found" });
+                return;
+            }
+            yield (0, twilitoHandller_1.generateOTP)(phoneNumber);
+            res.status(200).send({ message: "OTP sent" });
+        }
+        catch (e) {
+            res.status(500).send({ message: "Oops! Something went wrong" });
+        }
+    });
+}
+exports.generateOtp = generateOtp;
+function verifyOtp(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            console.log("Verifying OTP");
+            const { phoneNumber, code, password } = req.body;
+            const client = yield Client_1.default.findOne({ phone: phoneNumber });
+            if (!client) {
+                res.status(404).send({ message: "User not found" });
+                return;
+            }
+            const verified = yield (0, twilitoHandller_1.verifyOTP)(phoneNumber, code);
+            if (!verified) {
+                res.status(403).send({ "message": "Invalid OTP" });
+            }
+            client.password = yield argon2.hash(password);
+            yield client.save();
+            res.status(200).send({ message: "Password updated successfully" });
+        }
+        catch (e) {
+            console.log(e);
+            res.status(500).send({ message: e.message });
+        }
+    });
+}
+exports.verifyOtp = verifyOtp;
