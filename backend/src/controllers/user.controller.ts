@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { generateOTP, verifyOTP } from "../utils/twilitoHandller";
 import path from "path";
 import fs from "fs";
 import XLSX from "xlsx";
@@ -95,9 +96,30 @@ export async function getFilter(req: Request, res: Response): Promise<void> {
   }
 }
 
-export async function generateOTP(req: Request, res: Response): Promise<void> {}
-export async function checkOTP(requ: Request, res: Response): Promise<boolean> {
-  return true;
+export async function generateOtp(req: Request, res: Response): Promise<void> {
+  try {
+    console.log("Generating OTP");
+    const { phoneNumber } = req.body;
+    await generateOTP(phoneNumber);
+    res.status(200).send({ message: "OTP sent" });
+  } catch (e: any) {
+    console.log(e)
+    res.status(500).send({ message: e.message });
+  }
+}
+
+export async function verifyOtp(req: Request, res: Response): Promise<void> {
+  try {
+    console.log("Verifying OTP")
+    const { phoneNumber, code } = req.body;
+    console.log(phoneNumber, code)
+    const verified = await verifyOTP(phoneNumber, code);
+    if (!verified) throw Error("Invalid OTP");
+    res.status(200).send({ message: "OTP verified" });
+  } catch (e: any) {
+    console.log(e)
+    res.status(500).send({ message: e.message });
+  }
 }
 
 const getTemplates = (directoryPath: string, directories: string[]) => {

@@ -36,6 +36,10 @@ const ClientSchema = new mongoose_1.default.Schema({
         required: true,
         ref: 'Admin'
     },
+    phone: {
+        type: String,
+        required: false
+    }
 }, { timestamps: true });
 const Client = mongoose_1.default.model('User', ClientSchema);
 exports.default = Client;

@@ -32,6 +32,10 @@ const ClientSchema = new mongoose.Schema({
         required: true,
         ref: 'Admin'
     },
+    phone: {
+        type: String,
+        required: false
+    }
 }, { timestamps: true });
 
 const Client = mongoose.model('User', ClientSchema);
