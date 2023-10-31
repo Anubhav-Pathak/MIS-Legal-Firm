@@ -12,13 +12,27 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getFilter = exports.postRead = void 0;
+exports.checkOTP = exports.generateOTP = exports.getFilter = exports.postRead = void 0;
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const xlsx_1 = __importDefault(require("xlsx"));
 const s3_1 = require("../utils/s3");
 const DEFAULT_LIMIT = 1;
 const DEFAULT_PAGE = 1;
+function searchInExcel(workbook, search) {
+    const results = [];
+    for (const sheetName of workbook.SheetNames) {
+        const worksheet = workbook.Sheets[sheetName];
+        const data = xlsx_1.default.utils.sheet_to_json(worksheet);
+        const searchResults = data.filter((row) => {
+            return Object.values(row).some((value) => {
+                return value.toString().toLowerCase().includes(search.toLowerCase());
+            });
+        });
+        results.push(...searchResults);
+    }
+    return results;
+}
 function postRead(req, res, next) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
@@ -44,11 +58,7 @@ function postRead(req, res, next) {
             const endIndex = page * limit;
             let results = data.slice(startIndex, endIndex);
             if (search) {
-                const searchResults = data.filter((row) => {
-                    return Object.values(row).some((value) => {
-                        return value.toString().toLowerCase().includes(search.toLowerCase());
-                    });
-                });
+                const searchResults = searchInExcel(workbook, search);
                 results = searchResults.slice(startIndex, endIndex);
                 length = searchResults.length;
             }
@@ -98,6 +108,16 @@ function getFilter(req, res) {
     });
 }
 exports.getFilter = getFilter;
+function generateOTP(req, res) {
+    return __awaiter(this, void 0, void 0, function* () { });
+}
+exports.generateOTP = generateOTP;
+function checkOTP(requ, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return true;
+    });
+}
+exports.checkOTP = checkOTP;
 const getTemplates = (directoryPath, directories) => {
     try {
         const templates = [];

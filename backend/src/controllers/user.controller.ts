@@ -95,6 +95,11 @@ export async function getFilter(req: Request, res: Response): Promise<void> {
   }
 }
 
+export async function generateOTP(req: Request, res: Response): Promise<void> {}
+export async function checkOTP(requ: Request, res: Response): Promise<boolean> {
+  return true;
+}
+
 const getTemplates = (directoryPath: string, directories: string[]) => {
   try {
     const templates = [];
