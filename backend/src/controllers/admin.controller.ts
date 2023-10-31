@@ -1,6 +1,7 @@
 import path from "path";
 import { NextFunction, Request, Response } from "express";
 import fs from "fs";
+import { generateOTP, verifyOTP } from "../utils/twilitoHandller";
 import { HydratedDocument } from "mongoose";
 import * as argon2 from "argon2";
 
@@ -101,3 +102,41 @@ export const updateFile = async (req: Request, res: Response, next: NextFunction
     next(err);
   }
 };
+
+export async function generateOtp(req: Request, res: Response): Promise<void> {
+  try {
+    console.log("Generating OTP");
+    const { phoneNumber } = req.body;
+    const client = await Client.find({ phoneNumber });
+    if (!client) {
+      res.status(404).send({ message: "User not found" });
+      return;
+    }
+    await generateOTP(phoneNumber);
+    res.status(200).send({ message: "OTP sent" });
+  } catch (e: any) {
+    res.status(500).send({ message: "Oops! Something went wrong" });
+  }
+}
+
+export async function verifyOtp(req: Request, res: Response): Promise<void> {
+  try {
+    console.log("Verifying OTP")
+    const { phoneNumber, code, password } = req.body;
+    const client = await Client.findOne({ phone: phoneNumber })
+    if (!client) {
+      res.status(404).send({ message: "User not found" });
+      return;
+    }
+    const verified = await verifyOTP(phoneNumber, code);
+    if (!verified) {
+      res.status(403).send({"message": "Invalid OTP"});
+    }
+    client.password = await argon2.hash(password);
+    await client.save();
+    res.status(200).send({ message: "Password updated successfully" });
+  } catch (e: any) {
+    console.log(e)
+    res.status(500).send({ message: e.message });
+  }
+}
